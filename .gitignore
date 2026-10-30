@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# Data and models (share through Google Drive, not GitHub)
+data/
+models/
+*.pt
+*.zip
+chroma_db/
+*.db
+
+# Node / Electron
+node_modules/
+dist/
