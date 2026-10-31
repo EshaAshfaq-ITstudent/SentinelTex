@@ -10,6 +10,7 @@ from ..models import QualityReport, ReportStatus, Review, Role, User
 from ..compliance.checker import assess
 from ..ocr.extract import extract_report, load_rules
 from ..schemas import ReportOut, ReviewIn
+from ..vision.detect import ModelUnavailable, analyse_images
 from ..security import get_current_user, require_roles
 from .samples import get_sample_or_404
 
@@ -19,8 +20,8 @@ router = APIRouter(tags=["Quality Assessment Reports"])
 def run_analysis(sample) -> tuple[str, str, dict]:
     """Run every connected module on the sample's files and combine the results.
 
-    Connected: Test Analysis (OCR of the lab report) + compliance checking against the specification.
-    Still to connect: Image Analysis (YOLO) and the LLM explanation.
+    Connected: Image Analysis (YOLO on the fabric photos), Test Analysis (OCR of the lab report)
+    and compliance checking against the specification. Still to connect: the LLM explanation.
     """
     images = [f for f in sample.files if f.kind == "image"]
     lab_reports = [f for f in sample.files if f.kind == "lab_report"]
@@ -38,12 +39,26 @@ def run_analysis(sample) -> tuple[str, str, dict]:
         except Exception as e:                     # unreadable file: report it, do not crash the request
             details["test_analysis"] = {"error": f"Could not read {latest.original_name}: {e}"}
 
-    result = assess(rules, ocr["results"] if ocr else None, ocr["visual_text"] if ocr else None)
+    image_defects = None
+    if images:
+        try:
+            vision = analyse_images([(f.stored_path, f.original_name) for f in images])
+            details["image_analysis"] = vision
+            image_defects = vision["defects"]
+        except ModelUnavailable as e:              # no trained model yet: say so, keep going
+            details["image_analysis"] = {"skipped": str(e)}
+
+    result = assess(rules, ocr["results"] if ocr else None, ocr["visual_text"] if ocr else None, image_defects)
     details["compliance"] = result
     passed = sum(1 for c in result["checks"] if c["result"] == "PASS")
     summary = (f"Decision {result['decision']}. {passed} checks passed, "
                f"{len(result['failed_clauses'])} failed ({', '.join(result['failed_clauses']) or 'none'}), "
                f"{len(result['unverified_clauses'])} need manual checking or were not reported.")
+    if image_defects is not None:
+        found = ", ".join(f"{d['count']} {d['defect']}" for d in image_defects) or "no defects"
+        summary += f" Image Analysis found {found}."
+    elif images:
+        summary += " Image Analysis skipped (no trained model)."
     if not lab_reports:
         summary += " No lab report uploaded."
     return result["decision"], summary, details

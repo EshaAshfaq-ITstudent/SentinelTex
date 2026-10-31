@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, engine
 from .routers import auth, reports, samples
+from .vision.detect import model_status
 
 Base.metadata.create_all(bind=engine)
 
@@ -26,4 +27,4 @@ app.include_router(reports.router)
 
 @app.get("/health", tags=["System"])
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "image_model": model_status()}

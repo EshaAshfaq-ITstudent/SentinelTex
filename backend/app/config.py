@@ -46,6 +46,9 @@ DATA_DIR = Path(os.environ.get("SENTINELTEX_DATA_DIR", PROJECT_DIR / "data"))
 UPLOAD_DIR = DATA_DIR / "uploads"
 DB_PATH = Path(os.environ.get("SENTINELTEX_DB", BACKEND_DIR / "sentineltex.db"))
 
+MODEL_PATH = Path(os.environ.get("SENTINELTEX_MODEL", PROJECT_DIR / "models" / "best.pt"))
+DETECT_CONF = float(os.environ.get("SENTINELTEX_DETECT_CONF", "0.25"))  # minimum confidence for a defect box
+
 ALLOWED_IMAGE_TYPES = {".jpg", ".jpeg", ".png"}
 ALLOWED_REPORT_TYPES = {".jpg", ".jpeg", ".png", ".pdf"}
 MAX_UPLOAD_MB = 25

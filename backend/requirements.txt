@@ -9,3 +9,4 @@ pytesseract
 pypdfium2
 numpy
 httpx2
+ultralytics

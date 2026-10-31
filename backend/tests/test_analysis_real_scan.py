@@ -19,9 +19,19 @@ H = {"Authorization": "Bearer " + c.post("/auth/login", data={"username": "analy
 assert c.post("/samples", json={"sample_code": "ST-0080"}, headers=H).status_code == 201
 with open(scan, "rb") as f:
     assert c.post("/samples/ST-0080/lab-report", files={"file": ("STTL-TR-2026-0080.jpg", f, "image/jpeg")}, headers=H).status_code == 201
+photo = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(scan)))), "linked_samples", "photos", "IMG_7156.jpg")
+if os.path.exists(photo):                      # fabric photo of the same sample, for Image Analysis
+    with open(photo, "rb") as f:
+        assert c.post("/samples/ST-0080/image", files={"file": ("IMG_7156.jpg", f, "image/jpeg")}, headers=H).status_code == 201
 rep = c.post("/samples/ST-0080/analyze", headers=H).json()
 d = json.loads(rep["details_json"])
 print("Decision:", rep["decision"]); print("Summary:", rep["summary"])
+ia = d["image_analysis"]
+if ia and "images" in ia:
+    for im in ia["images"]:
+        print("  Image", im["file"], im.get("counts", im.get("error")))
+elif ia:
+    print("  Image Analysis:", ia)
 for ch in d["compliance"]["checks"]:
     print(f"  {ch['clause']:5s} {ch['result']:14s} value={ch['value']}  requirement: {ch['requirement']}  ({ch['source']})")
 assert rep["decision"] == "REJECT" and "4.1" in d["compliance"]["failed_clauses"]
