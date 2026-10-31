@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-multipart
+pyjwt
+bcrypt
+sqlalchemy
+opencv-python
+pytesseract
+pypdfium2
+numpy
+httpx2

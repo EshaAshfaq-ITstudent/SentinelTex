@@ -42,12 +42,18 @@ Everything runs locally on the laptop (air gapped design). No cloud APIs are use
 
 ```
 sentineltex/
-├── backend/          FastAPI app (API, database, login, approvals)
-│   ├── vision/       Image Analysis (YOLO)
-│   ├── ocr/          Test Analysis (lab report reading)
-│   ├── rag/          Specification search (ChromaDB) and LLM
-│   └── compliance/   Pass or fail checking against clauses
-├── frontend/         Electron and React desktop app
+├── backend/              FastAPI app
+│   ├── app/
+│   │   ├── routers/      API endpoints (login, samples, reports and approvals)
+│   │   ├── ocr/          Test Analysis: reads lab report scans          (done)
+│   │   ├── compliance/   Pass or fail checking against clauses          (done)
+│   │   ├── knowledge/    Specification rules (STS/UC/01)
+│   │   ├── vision/       Image Analysis (YOLO)                          (next)
+│   │   └── rag/          Specification search (ChromaDB) and LLM        (next)
+│   ├── tests/            Workflow and real scan tests
+│   └── tools/            Accuracy evaluation scripts
+├── docs/                 Results notes for the FYP report
+├── frontend/             Electron and React desktop app                 (later)
 ├── notebooks/        Kaggle training notebook
 ├── data/             Datasets (not on GitHub, see Data below)
 ├── models/           Trained model files (not on GitHub)
@@ -128,21 +134,38 @@ It should print **Python 3.11.x** and show `(venv)` at the start of the line.
 
 ### 6. Install the Python libraries
 
+From the main `SentinelTex` folder, with `(venv)` showing:
+
 ```
 python -m pip install --upgrade pip
-pip install fastapi "uvicorn[standard]" python-multipart pyjwt bcrypt sqlalchemy chromadb sentence-transformers opencv-python pytesseract pillow pypdfium2 ollama ultralytics
+pip install -r backend\requirements.txt
 ```
 
-This takes 10 to 20 minutes. It worked if the last line says `Successfully installed ...` with no red `ERROR` lines.
+It worked if the last line says `Successfully installed ...` with no red `ERROR` lines. When new parts are added (YOLO, ChromaDB, LLM) their libraries go into `backend\requirements.txt`, so run this command again after every `git pull`.
 
 ---
+
+## Run and test
+
+```
+cd %USERPROFILE%\SentinelTex
+venv\Scripts\activate
+cd backend
+python tests\test_workflow.py
+python tests\test_analysis_real_scan.py ..\data\documents\sentineltex_documents_v2\lab_reports\scans\STTL-TR-2026-0080.jpg
+python seed_users.py                 (first time only: set passwords for analyst, am, dm)
+uvicorn app.main:app --reload
+```
+
+Then open http://127.0.0.1:8000/docs. Accuracy results so far: `docs/test_analysis_results.md`.
 
 ## Every time you start working
 
 ```
-cd %USERPROFILE%\sentineltex
+cd %USERPROFILE%\SentinelTex
 venv\Scripts\activate
 git pull
+pip install -r backend\requirements.txt
 ```
 
 ## Working with Git
@@ -167,9 +190,13 @@ Datasets and trained models are too large for GitHub. They are in the shared Goo
 
 | File | Contents | Put it in |
 |---|---|---|
-| Image dataset zip | Fabric images with defect labels (YOLO format) | `data/images/` |
-| Documents zip | Specification and lab report scans with answer keys | `data/documents/` |
+| `sentineltex_dataset_v1.zip` | Fabric images with defect labels (YOLO format) | `data/images/` |
+| `sentineltex_documents_v2.zip` | Specification, lab report scans, answer keys, linked photos | `data/documents/` |
+
 | YOLO model file (`best.pt`) | Trained Image Analysis model | `models/` |
+
+Use Windows "Extract All" into each folder. After extracting, these paths must exist:
+`data/images/sentineltex_dataset_v1/images/train/` and `data/documents/sentineltex_documents_v2/lab_reports/scans/`.
 
 ---
 
@@ -180,7 +207,9 @@ Datasets and trained models are too large for GitHub. They are in the shared Goo
 | `python --version` shows 3.14 | Create the venv with `py -3.11 -m venv venv`, then activate it |
 | `'ollama' is not recognized` | Install Ollama (step 3), then open a new terminal |
 | `'tesseract' is not recognized` | Add `C:\Program Files\Tesseract-OCR` to PATH, open a new terminal |
-| `(venv)` not showing | Run `venv\Scripts\activate` inside the `sentineltex` folder |
+| `(venv)` not showing | Run `venv\Scripts\activate` in the main `SentinelTex` folder (not inside `backend`) |
+| `requires the httpx2 package` | Run `pip install -r backend\requirements.txt` again (httpx2 is now in the list) |
+| Test command only opens the image | Type the whole line, starting with `python tests\test_analysis_real_scan.py` |
 | pip shows red errors | Check that `python --version` says 3.11 inside the venv |
 
 Add new problems here as we find them.

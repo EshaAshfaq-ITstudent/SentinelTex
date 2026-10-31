@@ -1,0 +1,243 @@
+{
+ "title": "Cloth, Ripstop, Digital Camouflage, Polyester/Cotton 65/35, for Combat Uniform",
+ "rev": "Rev A",
+ "issued": "15-01-2026",
+ "requirements": [
+  {
+   "clause": "3.1",
+   "property": "Fibre composition (polyester)",
+   "direction": "",
+   "method": "ISO 1833",
+   "unit": "%",
+   "kind": "range",
+   "limit": [
+    62.0,
+    68.0
+   ],
+   "text": "62 to 68"
+  },
+  {
+   "clause": "3.2",
+   "property": "Mass per unit area",
+   "direction": "",
+   "method": "ISO 3801",
+   "unit": "g/m2",
+   "kind": "range",
+   "limit": [
+    190.0,
+    210.0
+   ],
+   "text": "190 to 210"
+  },
+  {
+   "clause": "3.3a",
+   "property": "Threads per cm",
+   "direction": "Warp",
+   "method": "ISO 7211-2",
+   "unit": "threads/cm",
+   "kind": "min",
+   "limit": 40,
+   "text": "Not less than 40"
+  },
+  {
+   "clause": "3.3b",
+   "property": "Threads per cm",
+   "direction": "Weft",
+   "method": "ISO 7211-2",
+   "unit": "threads/cm",
+   "kind": "min",
+   "limit": 30,
+   "text": "Not less than 30"
+  },
+  {
+   "clause": "3.4a",
+   "property": "Breaking force (strip)",
+   "direction": "Warp",
+   "method": "ISO 13934-1",
+   "unit": "N",
+   "kind": "min",
+   "limit": 850,
+   "text": "Not less than 850"
+  },
+  {
+   "clause": "3.4b",
+   "property": "Breaking force (strip)",
+   "direction": "Weft",
+   "method": "ISO 13934-1",
+   "unit": "N",
+   "kind": "min",
+   "limit": 600,
+   "text": "Not less than 600"
+  },
+  {
+   "clause": "3.5a",
+   "property": "Tear force (trouser)",
+   "direction": "Warp",
+   "method": "ISO 13937-2",
+   "unit": "N",
+   "kind": "min",
+   "limit": 35,
+   "text": "Not less than 35"
+  },
+  {
+   "clause": "3.5b",
+   "property": "Tear force (trouser)",
+   "direction": "Weft",
+   "method": "ISO 13937-2",
+   "unit": "N",
+   "kind": "min",
+   "limit": 30,
+   "text": "Not less than 30"
+  },
+  {
+   "clause": "3.6a",
+   "property": "Dimensional change after washing",
+   "direction": "Warp",
+   "method": "ISO 5077",
+   "unit": "%",
+   "kind": "abs_max",
+   "limit": 3.0,
+   "text": "Within +/- 3"
+  },
+  {
+   "clause": "3.6b",
+   "property": "Dimensional change after washing",
+   "direction": "Weft",
+   "method": "ISO 5077",
+   "unit": "%",
+   "kind": "abs_max",
+   "limit": 3.0,
+   "text": "Within +/- 3"
+  },
+  {
+   "clause": "3.7a",
+   "property": "Colour fastness to washing, change in shade",
+   "direction": "",
+   "method": "ISO 105-C06",
+   "unit": "grade",
+   "kind": "min",
+   "limit": 4,
+   "text": "Not less than 4"
+  },
+  {
+   "clause": "3.7b",
+   "property": "Colour fastness to washing, staining",
+   "direction": "",
+   "method": "ISO 105-C06",
+   "unit": "grade",
+   "kind": "min",
+   "limit": 3.5,
+   "text": "Not less than 3.5"
+  },
+  {
+   "clause": "3.8a",
+   "property": "Colour fastness to rubbing, dry",
+   "direction": "",
+   "method": "ISO 105-X12",
+   "unit": "grade",
+   "kind": "min",
+   "limit": 4,
+   "text": "Not less than 4"
+  },
+  {
+   "clause": "3.8b",
+   "property": "Colour fastness to rubbing, wet",
+   "direction": "",
+   "method": "ISO 105-X12",
+   "unit": "grade",
+   "kind": "min",
+   "limit": 3,
+   "text": "Not less than 3"
+  },
+  {
+   "clause": "3.9",
+   "property": "Colour fastness to light",
+   "direction": "",
+   "method": "ISO 105-B02",
+   "unit": "blue wool grade",
+   "kind": "min",
+   "limit": 5,
+   "text": "Not less than 5"
+  },
+  {
+   "clause": "3.10",
+   "property": "Colour fastness to perspiration",
+   "direction": "",
+   "method": "ISO 105-E04",
+   "unit": "grade",
+   "kind": "min",
+   "limit": 4,
+   "text": "Not less than 4"
+  },
+  {
+   "clause": "3.11",
+   "property": "pH of aqueous extract",
+   "direction": "",
+   "method": "ISO 3071",
+   "unit": "pH",
+   "kind": "range",
+   "limit": [
+    5.5,
+    7.5
+   ],
+   "text": "5.5 to 7.5"
+  },
+  {
+   "clause": "3.12",
+   "property": "Shade against approved reference (CMC 2:1)",
+   "direction": "",
+   "method": "ISO 105-J03",
+   "unit": "Delta E",
+   "kind": "max",
+   "limit": 1.0,
+   "text": "Not more than 1"
+  }
+ ],
+ "visual": [
+  {
+   "clause": "4.1",
+   "defect": "Holes, tears, cuts",
+   "cv_class": "tear",
+   "requirement": "None permitted",
+   "cls": "Major"
+  },
+  {
+   "clause": "4.2",
+   "defect": "Pattern or print defects (misprint, missing print, smear)",
+   "cv_class": "pattern_defect",
+   "requirement": "None permitted",
+   "cls": "Major"
+  },
+  {
+   "clause": "4.3",
+   "defect": "Stains larger than 5 mm",
+   "cv_class": "stain",
+   "requirement": "None permitted",
+   "cls": "Major"
+  },
+  {
+   "clause": "4.4",
+   "defect": "Spots up to 5 mm",
+   "cv_class": "spot",
+   "requirement": "Not more than 2 per linear metre",
+   "cls": "Minor",
+   "per_metre_limit": 2
+  },
+  {
+   "clause": "4.5",
+   "defect": "Local discoloration or shade bands",
+   "cv_class": "discoloration",
+   "requirement": "None visible at 1 m under daylight",
+   "cls": "Major"
+  },
+  {
+   "clause": "4.6",
+   "defect": "Loose or floating threads",
+   "cv_class": "loose_thread",
+   "requirement": "Not more than 3 per linear metre",
+   "cls": "Minor",
+   "per_metre_limit": 3
+  }
+ ],
+ "spec_id": "STS/UC/01"
+}
