@@ -48,15 +48,15 @@ sentineltex/
 │   │   ├── ocr/          Test Analysis: reads lab report scans          (done)
 │   │   ├── compliance/   Pass or fail checking against clauses          (done)
 │   │   ├── knowledge/    Specification rules (STS/UC/01)
-│   │   ├── vision/       Image Analysis (YOLO)                          (next)
+│   │   ├── vision/       Image Analysis (YOLO)                          (done, needs trained model)
 │   │   └── rag/          Specification search (ChromaDB) and LLM        (next)
 │   ├── tests/            Workflow and real scan tests
 │   └── tools/            Accuracy evaluation scripts
 ├── docs/                 Results notes for the FYP report
 ├── frontend/             Electron and React desktop app                 (later)
-├── notebooks/        Kaggle training notebook
-├── data/             Datasets (not on GitHub, see Data below)
-├── models/           Trained model files (not on GitHub)
+├── notebooks/            Kaggle training notebook for the image model
+├── data/                 Datasets (not on GitHub, see Data below)
+├── models/               Trained model files (best.pt) (not on GitHub)
 ├── .gitignore
 └── README.md
 ```
@@ -159,6 +159,25 @@ uvicorn app.main:app --reload
 
 Then open http://127.0.0.1:8000/docs. Accuracy results so far: `docs/test_analysis_results.md`.
 
+## Train the Image Analysis model (Kaggle, free GPU)
+
+1. Sign in at kaggle.com and verify your phone number (needed for GPU).
+2. **Create → New Dataset**, upload `sentineltex_dataset_v1.zip`, name it `sentineltex-dataset`, keep it **Private**, click **Create**.
+3. **Create → New Notebook → File → Import Notebook**, choose `notebooks\sentineltex_yolo_training.ipynb`.
+4. In the right panel: **Add Input** → your `sentineltex-dataset`. Session options: Accelerator **GPU T4 x2**, Internet **On**.
+5. Click **Run All** (about 20 to 40 minutes).
+6. From the **Output** panel download `sentineltex_yolo_results.zip`. Put `best.pt` from it in `SentinelTex\models\` and keep the rest (metrics and charts) for the report.
+7. Check it on the laptop, from the `backend` folder:
+
+```
+python tests\test_image_analysis.py
+python tests\test_analysis_real_scan.py
+```
+
+Without `models\best.pt` the backend still works and the report says Image Analysis was skipped.
+
+---
+
 ## Every time you start working
 
 ```
@@ -210,6 +229,7 @@ Use Windows "Extract All" into each folder. After extracting, these paths must e
 | `(venv)` not showing | Run `venv\Scripts\activate` in the main `SentinelTex` folder (not inside `backend`) |
 | `requires the httpx2 package` | Run `pip install -r backend\requirements.txt` again (httpx2 is now in the list) |
 | Test command only opens the image | Type the whole line, starting with `python tests\test_analysis_real_scan.py` |
+| Image Analysis skipped (no trained model) | Put `best.pt` in `SentinelTex\models\` (Kaggle step above) |
 | pip shows red errors | Check that `python --version` says 3.11 inside the venv |
 
 Add new problems here as we find them.

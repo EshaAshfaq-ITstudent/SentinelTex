@@ -32,6 +32,8 @@ report back for re-analysis. Roles: Lab Analyst, AM, DM.
 backend/app/routers/     API: auth (JWT login), samples (create, upload image / lab report), reports (analyze, AM/DM review)
 backend/app/ocr/         Test Analysis: preprocess.py (page finding, deskew, speck and line removal), extract.py (Tesseract, row to clause matching, unit checks)
 backend/app/compliance/  checker.py: clause by clause PASS / FAIL / CHECK MANUALLY / NOT REPORTED, decision ACCEPT / REJECT / NOT VERIFIABLE
+backend/app/vision/      detect.py: YOLO on fabric photos (models/best.pt, conf 0.25); per defect, sample count = max over photos; skipped if no model
+notebooks/               sentineltex_yolo_training.ipynb (Kaggle, YOLOv8s, 640 px, seed 0, val + real only test metrics)
 backend/app/knowledge/   STS-UC-01_rules.json: 18 test clauses (3.1 to 3.12) and 6 visual clauses (4.1 to 4.6)
 backend/tests/           test_workflow.py (login, roles, approval flow), test_analysis_real_scan.py (real scan through the API)
 backend/tools/           evaluate_ocr.py, evaluate_decisions.py (accuracy against answer keys)
@@ -49,7 +51,8 @@ Image classes: 0 stain, 1 spot, 2 discoloration, 3 tear, 4 loose_thread, 5 patte
 venv\Scripts\activate
 cd backend
 python tests\test_workflow.py
-python tests\test_analysis_real_scan.py ..\data\documents\sentineltex_documents_v2\lab_reports\scans\STTL-TR-2026-0080.jpg
+python tests\test_analysis_real_scan.py
+python tests\test_image_analysis.py
 python tools\evaluate_ocr.py ..\data\documents\sentineltex_documents_v2\lab_reports\scans ..\data\documents\sentineltex_documents_v2\lab_reports\answer_keys
 python tools\evaluate_decisions.py ..\data\documents\sentineltex_documents_v2\lab_reports\scans ..\data\documents\sentineltex_documents_v2\lab_reports\answer_keys
 uvicorn app.main:app --reload        (then http://127.0.0.1:8000/docs)
@@ -62,7 +65,7 @@ python seed_users.py                 (set passwords for analyst, am, dm)
 |---|---|
 | Backend: login, roles, samples, uploads, AM then DM approval | Done, tested |
 | Test Analysis (OCR) + compliance check | Done, tested, connected to /analyze |
-| Image Analysis (YOLO on Kaggle, then plug in) | Next |
+| Image Analysis: backend/app/vision/detect.py connected to /analyze; Kaggle notebook ready | Waiting for Kaggle training (models/best.pt) |
 | Specification in ChromaDB + LLM explanation | Next |
 | Trend Analysis, Lab Chatbot | Later |
 | Electron and React interface | Later |
