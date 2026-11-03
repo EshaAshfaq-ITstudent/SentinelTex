@@ -11,6 +11,7 @@ from ..compliance.checker import assess
 from ..ocr.extract import extract_report, load_rules
 from ..schemas import ReportOut, ReviewIn
 from ..vision.detect import ModelUnavailable, analyse_images
+from ..rag import explain as rag_explain
 from ..security import get_current_user, require_roles
 from .samples import get_sample_or_404
 
@@ -21,7 +22,7 @@ def run_analysis(sample) -> tuple[str, str, dict]:
     """Run every connected module on the sample's files and combine the results.
 
     Connected: Image Analysis (YOLO on the fabric photos), Test Analysis (OCR of the lab report)
-    and compliance checking against the specification. Still to connect: the LLM explanation.
+    compliance checking against the specification, and a clause based explanation (LLM version via /explain).
     """
     images = [f for f in sample.files if f.kind == "image"]
     lab_reports = [f for f in sample.files if f.kind == "lab_report"]
@@ -50,6 +51,10 @@ def run_analysis(sample) -> tuple[str, str, dict]:
 
     result = assess(rules, ocr["results"] if ocr else None, ocr["visual_text"] if ocr else None, image_defects)
     details["compliance"] = result
+    try:   # quick explanation with clause text from ChromaDB; the LLM version is made on request (/explain)
+        details["llm_explanation"] = rag_explain.explain(result, sample.specification, use_llm=False)
+    except Exception as e:
+        details["llm_explanation"] = {"text": f"Explanation not available: {e}", "method": "none", "sources": []}
     passed = sum(1 for c in result["checks"] if c["result"] == "PASS")
     summary = (f"Decision {result['decision']}. {passed} checks passed, "
                f"{len(result['failed_clauses'])} failed ({', '.join(result['failed_clauses']) or 'none'}), "

@@ -18,6 +18,7 @@ report back for re-analysis. Roles: Lab Analyst, AM, DM.
 ## Scope decisions (agreed)
 
 * One fabric only: the team's digital camouflage ripstop uniform. One specification: STS/UC/01.
+* Chatbot refuses when retrieval similarity is below a threshold (no LLM call); every LLM answer is checked: cited clauses and numbers must appear in the given context.
 * Code decides pass or fail against clauses. The LLM only explains and cites the clause; it never decides.
 * A defect found only by the image model is CHECK MANUALLY (a person confirms); only lab report findings can FAIL visual clauses.
 * Unreadable or doubtful values are flagged "CHECK MANUALLY", never guessed. Missing results give "NOT VERIFIABLE".
@@ -33,6 +34,7 @@ report back for re-analysis. Roles: Lab Analyst, AM, DM.
 backend/app/routers/     API: auth (JWT login), samples (create, upload image / lab report), reports (analyze, AM/DM review)
 backend/app/ocr/         Test Analysis: preprocess.py (page finding, deskew, speck and line removal), extract.py (Tesseract, row to clause matching, unit checks)
 backend/app/compliance/  checker.py: clause by clause PASS / FAIL / CHECK MANUALLY / NOT REPORTED, decision ACCEPT / REJECT / NOT VERIFIABLE
+backend/app/rag/         digitize.py (spec scans -> OCR -> clause chunks JSON), index.py (ChromaDB, MiniLM or keyword fallback), llm.py (Ollama), explain.py, chat.py, grounding.py (cited clauses and numbers must be in context)
 backend/app/vision/      detect.py: YOLO on fabric photos (models/best.pt, conf 0.25); per defect, sample count = max over photos; skipped if no model
 frontend/                React app: npm install, npm run dev (port 5173). src/api.js holds every backend call
 notebooks/               sentineltex_yolo_training.ipynb (Kaggle, YOLOv8s, 640 px, seed 0, val + real only test metrics)
@@ -56,6 +58,11 @@ python tests\test_workflow.py
 python tests\test_analysis_real_scan.py
 python tests\test_image_analysis.py
 python tests\test_compliance_rules.py
+python tests\test_knowledge.py
+python tools\build_knowledge.py     (once: OCR spec, embeddings, chroma_db)
+python tools\evaluate_rag.py
+python tools\import_history.py     (once: demo history for Trend Analysis)
+python tests\test_trends.py
 python tools\evaluate_ocr.py ..\data\documents\sentineltex_documents_v2\lab_reports\scans ..\data\documents\sentineltex_documents_v2\lab_reports\answer_keys
 python tools\evaluate_decisions.py ..\data\documents\sentineltex_documents_v2\lab_reports\scans ..\data\documents\sentineltex_documents_v2\lab_reports\answer_keys
 uvicorn app.main:app --reload        (then http://127.0.0.1:8000/docs)
@@ -69,8 +76,8 @@ python seed_users.py                 (set passwords for analyst, am, dm)
 | Backend: login, roles, samples, uploads, AM then DM approval | Done, tested |
 | Test Analysis (OCR) + compliance check | Done, tested, connected to /analyze |
 | Image Analysis: detect.py connected to /analyze. v1 trained (real test mAP50 0.089, synthetic to real gap). v2 notebook adds public real defect photos | v2 Kaggle run pending |
-| Specification in ChromaDB + LLM explanation | Next |
-| Trend Analysis, Lab Chatbot | Later |
+| Specification OCR into ChromaDB (app/rag), LLM explanation (/reports/{id}/explain), Lab Chatbot (/chat) with grounding check | Done, tested with keyword embedding and a fake Ollama; run evaluate_rag.py on the laptop with MiniLM + llama3.2 |
+| Trend Analysis: tools/import_history.py (history CSVs, source 'demo history (synthetic)'), /trends/overview, /trends/clause/{c}, frontend TrendAnalysis.jsx | Done, tested against the CSVs |
 | React interface: frontend/ (Vite, HashRouter). Login, Samples, layout, api.js done; SampleDetail, ReviewQueue, ReportView have TODOs for Faiza | In progress. Electron wrap later |
 
 ## Measured results (31 Oct 2026, 100 lab report images)

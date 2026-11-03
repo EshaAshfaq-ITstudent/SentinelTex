@@ -7,6 +7,8 @@ import SampleDetail from './pages/SampleDetail'
 import ReviewQueue from './pages/ReviewQueue'
 import ReportView from './pages/ReportView'
 import ComingSoon from './pages/ComingSoon'
+import LabChatbot from './pages/LabChatbot'
+import TrendAnalysis from './pages/TrendAnalysis'
 
 function home(role) {
   return role === 'lab_analyst' ? '/samples' : '/review'
@@ -34,8 +36,8 @@ export default function App() {
         <Route path="/review" element={<Guard roles={['am', 'dm']}><ReviewQueue /></Guard>} />
         <Route path="/image-analysis" element={<Guard roles={['am', 'dm']}><ComingSoon title="Image Analysis" owner="Faiza" /></Guard>} />
         <Route path="/test-analysis" element={<Guard roles={['am', 'dm']}><ComingSoon title="Test Analysis" owner="Faiza" /></Guard>} />
-        <Route path="/trends" element={<Guard roles={['am', 'dm']}><ComingSoon title="Trend Analysis" owner="Maham" /></Guard>} />
-        <Route path="/chatbot" element={<Guard roles={['am', 'dm']}><ComingSoon title="Lab Chatbot" owner="Esha" /></Guard>} />
+        <Route path="/trends" element={<Guard roles={['am', 'dm']}><TrendAnalysis /></Guard>} />
+        <Route path="/chatbot" element={<Guard roles={['am', 'dm']}><LabChatbot /></Guard>} />
         {/* Everyone */}
         <Route path="/reports/:id" element={<ReportView />} />
       </Route>

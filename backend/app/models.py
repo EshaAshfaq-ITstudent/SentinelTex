@@ -9,7 +9,7 @@ Approval workflow (from the proposal):
 import enum
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -97,3 +97,32 @@ class Review(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     report: Mapped[QualityReport] = relationship(back_populates="reviews")
+
+
+# ---- Trend Analysis: past laboratory records imported from file (tools/import_history.py) ----
+class HistoryReport(Base):
+    __tablename__ = "history_reports"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    report_no: Mapped[str] = mapped_column(String(40), unique=True, index=True)
+    report_date: Mapped[datetime] = mapped_column(DateTime)
+    sample_code: Mapped[str] = mapped_column(String(20))
+    specification: Mapped[str] = mapped_column(String(30))
+    supplier: Mapped[str] = mapped_column(String(100), index=True)
+    decision: Mapped[str] = mapped_column(String(40))              # ACCEPT / REJECT / NOT VERIFIABLE
+    failed_clauses: Mapped[str] = mapped_column(String(200), default="")
+    source: Mapped[str] = mapped_column(String(60))                # says where the record came from
+
+
+class HistoryResult(Base):
+    __tablename__ = "history_results"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    report_no: Mapped[str] = mapped_column(String(40), index=True)
+    report_date: Mapped[datetime] = mapped_column(DateTime)
+    supplier: Mapped[str] = mapped_column(String(100))
+    clause: Mapped[str] = mapped_column(String(10), index=True)
+    property: Mapped[str] = mapped_column(String(100))
+    direction: Mapped[str] = mapped_column(String(20), default="")
+    value: Mapped[float] = mapped_column(Float)
+    unit: Mapped[str] = mapped_column(String(20), default="")
+    compliant: Mapped[bool] = mapped_column(Boolean)
+    source: Mapped[str] = mapped_column(String(60))

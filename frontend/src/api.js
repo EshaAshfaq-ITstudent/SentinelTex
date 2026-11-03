@@ -79,3 +79,18 @@ export function reportDetails(report) {
 }
 
 export const health = () => request('/health')
+
+// ---- Knowledge base, LLM explanation, Lab Chatbot ------------------------
+export const knowledgeStatus = () => request('/knowledge/status')
+export const askChatbot = (question) => request('/chat', { method: 'POST', body: { question } })
+export const explainReport = (id, refresh = false) =>
+  request(`/reports/${id}/explain?refresh=${refresh}`, { method: 'POST' })
+
+// ---- Trend Analysis (AM / DM) --------------------------------------------
+function qs(params) {
+  const q = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== '' && v != null))
+  return q.toString() ? `?${q}` : ''
+}
+export const trendOverview = (filters) => request('/trends/overview' + qs(filters))
+export const clauseTrend = (clause, filters) => request(`/trends/clause/${clause}` + qs(filters))
+export const trendSuppliers = () => request('/trends/suppliers')

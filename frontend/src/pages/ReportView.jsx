@@ -5,6 +5,7 @@ import * as api from '../api'
 import { useAuth } from '../auth'
 import StatusBadge from '../components/StatusBadge'
 import AuthImage from '../components/AuthImage'
+import ExplanationPanel from '../components/ExplanationPanel'
 
 export default function ReportView() {
   const { id } = useParams()
@@ -106,6 +107,8 @@ export default function ReportView() {
         <h3>Assessment Summary</h3>
         <p style={{ margin: 0 }}>{report.summary}</p>
       </div>
+
+      <ExplanationPanel report={report} details={d} />
 
       {/* TODO 1: Compliance clause table */}
       <section className="card">

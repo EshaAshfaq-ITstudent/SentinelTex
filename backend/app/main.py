@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, engine
-from .routers import auth, reports, samples
+from .routers import auth, knowledge, reports, samples, trends
 from .vision.detect import model_status
 
 Base.metadata.create_all(bind=engine)
@@ -23,6 +23,8 @@ app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http
 app.include_router(auth.router)
 app.include_router(samples.router)
 app.include_router(reports.router)
+app.include_router(knowledge.router)
+app.include_router(trends.router)
 
 
 @app.get("/health", tags=["System"])

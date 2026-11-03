@@ -1,0 +1,333 @@
+{
+ "spec": "STS/UC/01",
+ "source_scans": [
+  "STS-UC-01_page1.jpg",
+  "STS-UC-01_page2.jpg"
+ ],
+ "chunks": [
+  {
+   "id": "STS/UC/01#000",
+   "spec": "STS/UC/01",
+   "clause": "1.1",
+   "section": "1 Scope",
+   "page": 1,
+   "kind": "clause",
+   "text": "STS/UC/01, section 1 Scope, clause 1.1: This specification covers a printed digital camouflage ripstop woven fabric, polyester and cotton blend, intended for combat uniform shirts and trousers."
+  },
+  {
+   "id": "STS/UC/01#001",
+   "spec": "STS/UC/01",
+   "clause": "1.2",
+   "section": "1 Scope",
+   "page": 1,
+   "kind": "clause",
+   "text": "STS/UC/01, section 1 Scope, clause 1.2: Material supplied against this specification shall be tested and inspected as laid down in Sections 3 to 5 and shall comply with all requirements."
+  },
+  {
+   "id": "STS/UC/01#002",
+   "spec": "STS/UC/01",
+   "clause": "2.1",
+   "section": "2 Test Methods",
+   "page": 1,
+   "kind": "clause",
+   "text": "STS/UC/01, section 2 Test Methods, clause 2.1: Tests shall be carried out by the methods listed below on specimens conditioned in the standard atmosphere for testing textiles (20 +/- 2 C, 65 +/- 4 % relative humidity)."
+  },
+  {
+   "id": "STS/UC/01#003",
+   "spec": "STS/UC/01",
+   "clause": "2.1",
+   "section": "2 Test Methods",
+   "page": 1,
+   "kind": "clause",
+   "text": "STS/UC/01, section 2 Test Methods, clause 2.1: Test methods: ISO 1833 Textiles. Quantitative chemical analysis (fibre composition); ISO 3801 Textiles. Woven fabrics. Determination of mass per unit length and mass per unit area; ISO 7211-2 Textiles. Woven fabrics. Construction. Determination of number of threads per unit length; ISO 13934-1 Textiles. Tensile properties of fabrics. Part 1; Maximum force, strip method; ISO 13937-2 Textiles. Tear properties of fabrics. Part 2: Trouser shaped test specimens; ISO 5077 Textiles. Determination of dimensional change in washing and drying; ISO 105-C06 Textiles. Tests for colour fastness. Colour fastness to domestic and commercial laundering; ISO 105-X12 Tests for colour fastness. Colour fastness to rubbing; ISO 105-B02 Tests for colour fastness. Colour fastness to artificial light (xenon arc); ISO 105-E04 Textiles. Tests for colour fastness. Colour fastness to perspiration; ISO 3071 Textiles. Determination of pH of aqueous extract; ISO 105-J03 Textiles. Tests for colour fastness. Calculation of colour differences"
+  },
+  {
+   "id": "STS/UC/01#004",
+   "spec": "STS/UC/01",
+   "clause": "3.0",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "clause",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.0: The material shall conform to the requirements of Table 1. Failure in any one requirement shall render the lot liable to rejection."
+  },
+  {
+   "id": "STS/UC/01#005",
+   "spec": "STS/UC/01",
+   "clause": "3.1",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.1 (Table 1 columns: characteristic, direction, method, unit, requirement): Fibre composition (polyester) - ISO 1833 % 62 to 68 (test method ISO 1833 Textiles. Quantitative chemical analysis (fibre composition))"
+  },
+  {
+   "id": "STS/UC/01#006",
+   "spec": "STS/UC/01",
+   "clause": "3.2",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.2 (Table 1 columns: characteristic, direction, method, unit, requirement): Mass per unit area - ISO 3801 g/m2 190 to 210 (test method ISO 3801 Textiles. Woven fabrics. Determination of mass per unit length and mass per unit area)"
+  },
+  {
+   "id": "STS/UC/01#007",
+   "spec": "STS/UC/01",
+   "clause": "3.3a",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.3a (Table 1 columns: characteristic, direction, method, unit, requirement): Threads per cm Warp ISO 7211-2 threads/cm Not less than 40 (test method ISO 7211-2 Textiles. Woven fabrics. Construction. Determination of number of threads per unit length)"
+  },
+  {
+   "id": "STS/UC/01#008",
+   "spec": "STS/UC/01",
+   "clause": "3.3b",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.3b (Table 1 columns: characteristic, direction, method, unit, requirement): Threads per cm Weft ISO 7211-2 threads/cm Not less than 30 (test method ISO 7211-2 Textiles. Woven fabrics. Construction. Determination of number of threads per unit length)"
+  },
+  {
+   "id": "STS/UC/01#009",
+   "spec": "STS/UC/01",
+   "clause": "3.4a",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.4a (Table 1 columns: characteristic, direction, method, unit, requirement): Breaking force (strip) Warp ISO 13934-1 N Not less than 850 (test method ISO 13934-1 Textiles. Tensile properties of fabrics. Part 1; Maximum force, strip method)"
+  },
+  {
+   "id": "STS/UC/01#010",
+   "spec": "STS/UC/01",
+   "clause": "3.4b",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.4b (Table 1 columns: characteristic, direction, method, unit, requirement): Breaking force (strip) Weft ISO 13934-1 N Not less than 600 (test method ISO 13934-1 Textiles. Tensile properties of fabrics. Part 1; Maximum force, strip method)"
+  },
+  {
+   "id": "STS/UC/01#011",
+   "spec": "STS/UC/01",
+   "clause": "3.5a",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.5a (Table 1 columns: characteristic, direction, method, unit, requirement): Tear force (trouser) Warp ISO 13937-2 N Not less than 35 (test method ISO 13937-2 Textiles. Tear properties of fabrics. Part 2: Trouser shaped test specimens)"
+  },
+  {
+   "id": "STS/UC/01#012",
+   "spec": "STS/UC/01",
+   "clause": "3.5b",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.5b (Table 1 columns: characteristic, direction, method, unit, requirement): Tear force (trouser) Weft ISO 13937-2 N Not less than 30 (test method ISO 13937-2 Textiles. Tear properties of fabrics. Part 2: Trouser shaped test specimens)"
+  },
+  {
+   "id": "STS/UC/01#013",
+   "spec": "STS/UC/01",
+   "clause": "3.6a",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.6a (Table 1 columns: characteristic, direction, method, unit, requirement): Dimensional change after washing Warp ISO 5077 % Within +/- 3 (test method ISO 5077 Textiles. Determination of dimensional change in washing and drying)"
+  },
+  {
+   "id": "STS/UC/01#014",
+   "spec": "STS/UC/01",
+   "clause": "3.6b",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.6b (Table 1 columns: characteristic, direction, method, unit, requirement): Dimensional change after washing Weft ISO 5077 % Within +/- 3 (test method ISO 5077 Textiles. Determination of dimensional change in washing and drying)"
+  },
+  {
+   "id": "STS/UC/01#015",
+   "spec": "STS/UC/01",
+   "clause": "3.7a",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.7a (Table 1 columns: characteristic, direction, method, unit, requirement): Colour fastness to washing, change in shade - ISO 105-C06 grade Not less than 4 (test method ISO 105-C06 Textiles. Tests for colour fastness. Colour fastness to domestic and commercial laundering)"
+  },
+  {
+   "id": "STS/UC/01#016",
+   "spec": "STS/UC/01",
+   "clause": "3.7b",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.7b (Table 1 columns: characteristic, direction, method, unit, requirement): Colour fastness to washing, staining - ISO 105-C06 grade Not less than 3.5 (test method ISO 105-C06 Textiles. Tests for colour fastness. Colour fastness to domestic and commercial laundering)"
+  },
+  {
+   "id": "STS/UC/01#017",
+   "spec": "STS/UC/01",
+   "clause": "3.8a",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.8a (Table 1 columns: characteristic, direction, method, unit, requirement): Colour fastness to rubbing, dry - ISO 105-X12 grade Not less than 4 (test method ISO 105-X12 Tests for colour fastness. Colour fastness to rubbing)"
+  },
+  {
+   "id": "STS/UC/01#018",
+   "spec": "STS/UC/01",
+   "clause": "3.8b",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.8b (Table 1 columns: characteristic, direction, method, unit, requirement): Colour fastness to rubbing, wet - ISO 105-X12 grade Not less than 3 (test method ISO 105-X12 Tests for colour fastness. Colour fastness to rubbing)"
+  },
+  {
+   "id": "STS/UC/01#019",
+   "spec": "STS/UC/01",
+   "clause": "3.9",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 1,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.9 (Table 1 columns: characteristic, direction, method, unit, requirement): Colour fastness to light - ISO 105-B02 blue wool Not less than 5 grade (test method ISO 105-B02 Tests for colour fastness. Colour fastness to artificial light (xenon arc))"
+  },
+  {
+   "id": "STS/UC/01#020",
+   "spec": "STS/UC/01",
+   "clause": "3.10",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.10 (Table 1 columns: characteristic, direction, method, unit, requirement): Colour fastness to perspiration - ISO 105-E04 grade Not less than 4 (test method ISO 105-E04 Textiles. Tests for colour fastness. Colour fastness to perspiration)"
+  },
+  {
+   "id": "STS/UC/01#021",
+   "spec": "STS/UC/01",
+   "clause": "3.11",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.11 (Table 1 columns: characteristic, direction, method, unit, requirement): PH of aqueous extract - ISO 3071 pH 5.5 to 7.5 (test method ISO 3071 Textiles. Determination of pH of aqueous extract)"
+  },
+  {
+   "id": "STS/UC/01#022",
+   "spec": "STS/UC/01",
+   "clause": "3.12",
+   "section": "3 Physical And Chemical Requirements",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 3 Physical And Chemical Requirements, clause 3.12 (Table 1 columns: characteristic, direction, method, unit, requirement): Shade against approved reference (CMC 2:1) - ISO 105-J03 Delta E Not more than 1 (test method ISO 105-J03 Textiles. Tests for colour fastness. Calculation of colour differences)"
+  },
+  {
+   "id": "STS/UC/01#023",
+   "spec": "STS/UC/01",
+   "clause": "4.0",
+   "section": "4 Visual Inspection",
+   "page": 2,
+   "kind": "clause",
+   "text": "STS/UC/01, section 4 Visual Inspection, clause 4.0: The full width of the sample shall be examined on a lit inspection table. Defects shall be classified as Major or Minor as given in Table 2."
+  },
+  {
+   "id": "STS/UC/01#024",
+   "spec": "STS/UC/01",
+   "clause": "4.1",
+   "section": "4 Visual Inspection",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 4 Visual Inspection, clause 4.1 (Table 2 columns: defect, requirement, class): Holes, tears, cuts None permitted Major"
+  },
+  {
+   "id": "STS/UC/01#025",
+   "spec": "STS/UC/01",
+   "clause": "4.2",
+   "section": "4 Visual Inspection",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 4 Visual Inspection, clause 4.2 (Table 2 columns: defect, requirement, class): Pattern or print defects (misprint, missing print, smear) None permitted Major"
+  },
+  {
+   "id": "STS/UC/01#026",
+   "spec": "STS/UC/01",
+   "clause": "4.3",
+   "section": "4 Visual Inspection",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 4 Visual Inspection, clause 4.3 (Table 2 columns: defect, requirement, class): Stains larger than 5 mm None permitted Major"
+  },
+  {
+   "id": "STS/UC/01#027",
+   "spec": "STS/UC/01",
+   "clause": "4.4",
+   "section": "4 Visual Inspection",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 4 Visual Inspection, clause 4.4 (Table 2 columns: defect, requirement, class): Spots up to 5 mm Not more than 2 per linear metre Minor"
+  },
+  {
+   "id": "STS/UC/01#028",
+   "spec": "STS/UC/01",
+   "clause": "4.5",
+   "section": "4 Visual Inspection",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 4 Visual Inspection, clause 4.5 (Table 2 columns: defect, requirement, class): Local discoloration or shade bands None visible at 1 m under daylight Major"
+  },
+  {
+   "id": "STS/UC/01#029",
+   "spec": "STS/UC/01",
+   "clause": "4.6",
+   "section": "4 Visual Inspection",
+   "page": 2,
+   "kind": "table_row",
+   "text": "STS/UC/01, section 4 Visual Inspection, clause 4.6 (Table 2 columns: defect, requirement, class): Loose or floating threads Not more than 3 per linear metre Minor"
+  },
+  {
+   "id": "STS/UC/01#030",
+   "spec": "STS/UC/01",
+   "clause": "5.1",
+   "section": "5 Sampling And Acceptance",
+   "page": 2,
+   "kind": "clause",
+   "text": "STS/UC/01, section 5 Sampling And Acceptance, clause 5.1: One laboratory sample of not less than 2 m full width shall be drawn from each lot."
+  },
+  {
+   "id": "STS/UC/01#031",
+   "spec": "STS/UC/01",
+   "clause": "5.2",
+   "section": "5 Sampling And Acceptance",
+   "page": 2,
+   "kind": "clause",
+   "text": "STS/UC/01, section 5 Sampling And Acceptance, clause 5.2: A lot shall be accepted only when the sample meets every requirement of Section 3 and no Major defect of Section 4 is found."
+  },
+  {
+   "id": "STS/UC/01#032",
+   "spec": "STS/UC/01",
+   "clause": "5.3",
+   "section": "5 Sampling And Acceptance",
+   "page": 2,
+   "kind": "clause",
+   "text": "STS/UC/01, section 5 Sampling And Acceptance, clause 5.3: Minor defects within the limits of Table 2 shall not be cause for rejection."
+  },
+  {
+   "id": "STS/UC/01#033",
+   "spec": "STS/UC/01",
+   "clause": "5.4",
+   "section": "5 Sampling And Acceptance",
+   "page": 2,
+   "kind": "clause",
+   "text": "STS/UC/01, section 5 Sampling And Acceptance, clause 5.4: Where a characteristic of Section 3 has not been tested, the lot shall not be accepted until the result is available."
+  },
+  {
+   "id": "STS/UC/01#034",
+   "spec": "STS/UC/01",
+   "clause": "5.5",
+   "section": "5 Sampling And Acceptance",
+   "page": 2,
+   "kind": "clause",
+   "text": "STS/UC/01, section 5 Sampling And Acceptance, clause 5.5: Every failure shall be recorded on the test report with the clause number."
+  },
+  {
+   "id": "STS/UC/01#035",
+   "spec": "STS/UC/01",
+   "clause": "6.1",
+   "section": "6 Marking",
+   "page": 2,
+   "kind": "clause",
+   "text": "STS/UC/01, section 6 Marking, clause 6.1: Each roll shall be marked with the specification number (STS/UC/01), lot number, roll number, length and width (nominal 150 cm)."
+  }
+ ]
+}

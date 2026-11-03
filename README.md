@@ -49,7 +49,7 @@ sentineltex/
 │   │   ├── compliance/   Pass or fail checking against clauses          (done)
 │   │   ├── knowledge/    Specification rules (STS/UC/01)
 │   │   ├── vision/       Image Analysis (YOLO)                          (done, needs trained model)
-│   │   └── rag/          Specification search (ChromaDB) and LLM        (next)
+│   │   └── rag/          Specification OCR, ChromaDB search, LLM, chatbot (done)
 │   ├── tests/            Workflow and real scan tests
 │   └── tools/            Accuracy evaluation scripts
 ├── docs/                 Results notes for the FYP report
@@ -181,6 +181,35 @@ Without `models\best.pt` the backend still works and the report says Image Analy
 
 ---
 
+## Build the specification knowledge base (once)
+
+The Lab Chatbot and the explanations need the specification in ChromaDB. From the `backend` folder:
+
+```
+pip install -r requirements.txt
+python tools\build_knowledge.py
+python tests\test_knowledge.py
+```
+
+The first command OCRs the specification scans, saves the clauses to `app\knowledge\STS-UC-01_digitized.json`,
+downloads the embedding model once (about 90 MB, into `models\embeddings`) and builds `chroma_db`. After that it works offline.
+Ollama must be running with `llama3.2:3b` for LLM answers; without it the system still shows the matching clauses.
+
+Load the past laboratory records for Trend Analysis (synthetic demo history in this prototype):
+
+```
+python tools\import_history.py
+python tests\test_trends.py
+```
+
+Measure the knowledge base for the report (with Ollama running, this also checks the LLM explanations):
+
+```
+python tools\evaluate_rag.py
+```
+
+---
+
 ## Every time you start working
 
 ```
@@ -232,6 +261,8 @@ Use Windows "Extract All" into each folder. After extracting, these paths must e
 | `(venv)` not showing | Run `venv\Scripts\activate` in the main `SentinelTex` folder (not inside `backend`) |
 | `requires the httpx2 package` | Run `pip install -r backend\requirements.txt` again (httpx2 is now in the list) |
 | Test command only opens the image | Type the whole line, starting with `python tests\test_analysis_real_scan.py` |
+| Chatbot says knowledge base is empty | Run `python tools\build_knowledge.py` in `backend` |
+| Explanation says the LLM was not reachable | Start Ollama (llama icon near the clock) and check `ollama list` shows llama3.2:3b |
 | Image Analysis skipped (no trained model) | Put `best.pt` in `SentinelTex\models\` (Kaggle step above) |
 | pip shows red errors | Check that `python --version` says 3.11 inside the venv |
 
