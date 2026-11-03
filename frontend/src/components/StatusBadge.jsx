@@ -1,7 +1,7 @@
 // Coloured label for a decision, a clause result or a report status
 const LOOK = {
-  ACCEPT: 'pass', PASS: 'pass', approved: 'pass',
-  REJECT: 'fail', FAIL: 'fail', returned_for_reanalysis: 'fail',
+  ACCEPT: 'pass', PASS: 'pass', approved: 'pass', APPROVED: 'pass',
+  REJECT: 'fail', FAIL: 'fail', returned_for_reanalysis: 'fail', REJECTED: 'fail',
   'NOT VERIFIABLE': 'check', 'CHECK MANUALLY': 'check', 'NOT REPORTED': 'check',
   pending_am: 'neutral', pending_dm: 'neutral',
 }

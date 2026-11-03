@@ -11,7 +11,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.vision.detect import detect, model_status  # noqa: E402
 
-DEFAULT = "../data/images/images/test"
+# Extract All may or may not create the extra sentineltex_dataset_v1 folder: accept both
+CANDIDATES = ["../data/images/sentineltex_dataset_v1/images/test", "../data/images/images/test"]
+DEFAULT = next((c for c in CANDIDATES if Path(c).is_dir()), CANDIDATES[0])
 status = model_status()
 print("Model:", json.dumps(status))
 if not status["available"]:

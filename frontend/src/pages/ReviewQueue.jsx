@@ -112,8 +112,8 @@ export default function ReviewQueue() {
 
       <p className="muted">
         {user?.role === 'am'
-          ? 'Assessment Manager — review reports waiting for AM approval.'
-          : 'Deputy Manager — review reports waiting for DM approval.'}
+          ? 'Assistant Manager: reports waiting for AM approval.'
+          : 'Deputy Manager: reports waiting for DM approval.'}
       </p>
 
       {error && <div className="error">{error}</div>}
