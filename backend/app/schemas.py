@@ -51,6 +51,7 @@ class ReviewOut(BaseModel):
 class ReportOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    sample_code: str = ""
     version: int
     status: ReportStatus
     decision: str

@@ -3,6 +3,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -75,3 +76,20 @@ def upload_image(sample_code: str, file: UploadFile = File(...), db: Session = D
 def upload_lab_report(sample_code: str, file: UploadFile = File(...), db: Session = Depends(get_db),
                       user: User = Depends(analyst_only)):
     return _save_upload(get_sample_or_404(db, sample_code), file, "lab_report", ALLOWED_REPORT_TYPES, user, db)
+
+
+@router.get("/files/{file_id}", tags=["Samples"])
+def download_file(file_id: int, annotated: bool = False, db: Session = Depends(get_db),
+                  user: User = Depends(get_current_user)):
+    """Any logged in user can view an uploaded file. annotated=true gives the photo with defect boxes, if made."""
+    record = db.get(SampleFile, file_id)
+    if record is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "File not found")
+    path = Path(record.stored_path)
+    if annotated:
+        boxed = path.with_name(f"annotated_{path.stem}.jpg")
+        if boxed.exists():
+            path = boxed
+    if not path.exists():
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "File is missing on disk")
+    return FileResponse(path)

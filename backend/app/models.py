@@ -81,6 +81,10 @@ class QualityReport(Base):
     sample: Mapped[Sample] = relationship(back_populates="reports")
     reviews: Mapped[list["Review"]] = relationship(back_populates="report", cascade="all, delete-orphan")
 
+    @property
+    def sample_code(self) -> str:
+        return self.sample.sample_code if self.sample else ""
+
 
 class Review(Base):
     __tablename__ = "reviews"

@@ -53,7 +53,7 @@ sentineltex/
 │   ├── tests/            Workflow and real scan tests
 │   └── tools/            Accuracy evaluation scripts
 ├── docs/                 Results notes for the FYP report
-├── frontend/             Electron and React desktop app                 (later)
+├── frontend/             React interface, see frontend/README.md       (in progress)
 ├── notebooks/            Kaggle training notebook for the image model
 ├── data/                 Datasets (not on GitHub, see Data below)
 ├── models/               Trained model files (best.pt) (not on GitHub)

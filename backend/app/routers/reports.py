@@ -95,6 +95,14 @@ def list_reports(status_filter: ReportStatus | None = None, db: Session = Depend
     return db.scalars(query).all()
 
 
+@router.get("/reports/{report_id}", response_model=ReportOut)
+def get_report(report_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    report = db.get(QualityReport, report_id)
+    if report is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Report not found")
+    return report
+
+
 @router.post("/reports/{report_id}/review", response_model=ReportOut)
 def review_report(report_id: int, body: ReviewIn, db: Session = Depends(get_db),
                   user: User = Depends(require_roles(Role.AM, Role.DM))):

@@ -48,7 +48,12 @@ def test_full_workflow():
     assert client.post("/samples/ST-0080/image", files={"file": ("IMG_7156.jpg", b"\xff\xd8fakejpeg", "image/jpeg")}, headers=A).status_code == 201
     assert client.post("/samples/ST-0080/lab-report", files={"file": ("STTL-TR-2026-0080.jpg", b"\xff\xd8x", "image/jpeg")}, headers=A).status_code == 201
     rep = client.post("/samples/ST-0080/analyze", headers=A).json(); rid = rep["id"]
-    assert rep["status"] == "pending_am" and rep["version"] == 1
+    assert rep["status"] == "pending_am" and rep["version"] == 1 and rep["sample_code"] == "ST-0080"
+    assert client.get(f"/reports/{rid}", headers=A).json()["id"] == rid
+    assert client.get("/reports/99999", headers=A).status_code == 404
+    fid = client.get("/samples/ST-0080", headers=A).json()["files"][0]["id"]
+    assert client.get(f"/samples/files/{fid}", headers=A).status_code == 200      # any logged in user can view
+    assert client.get(f"/samples/files/{fid}").status_code == 401                 # not without login
     assert client.post("/samples/ST-0080/analyze", headers=A).status_code == 409    # already pending
     assert client.post(f"/reports/{rid}/review", json={"approve": True}, headers=DM).status_code == 409  # DM before AM
     assert client.post(f"/reports/{rid}/review", json={"approve": False}, headers=AM).status_code == 400   # reject needs reason

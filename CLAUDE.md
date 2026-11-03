@@ -34,6 +34,7 @@ backend/app/routers/     API: auth (JWT login), samples (create, upload image / 
 backend/app/ocr/         Test Analysis: preprocess.py (page finding, deskew, speck and line removal), extract.py (Tesseract, row to clause matching, unit checks)
 backend/app/compliance/  checker.py: clause by clause PASS / FAIL / CHECK MANUALLY / NOT REPORTED, decision ACCEPT / REJECT / NOT VERIFIABLE
 backend/app/vision/      detect.py: YOLO on fabric photos (models/best.pt, conf 0.25); per defect, sample count = max over photos; skipped if no model
+frontend/                React app: npm install, npm run dev (port 5173). src/api.js holds every backend call
 notebooks/               sentineltex_yolo_training.ipynb (Kaggle, YOLOv8s, 640 px, seed 0, val + real only test metrics)
 backend/app/knowledge/   STS-UC-01_rules.json: 18 test clauses (3.1 to 3.12) and 6 visual clauses (4.1 to 4.6)
 backend/tests/           test_workflow.py (login, roles, approval flow), test_analysis_real_scan.py (real scan through the API)
@@ -70,7 +71,7 @@ python seed_users.py                 (set passwords for analyst, am, dm)
 | Image Analysis: detect.py connected to /analyze. v1 trained (real test mAP50 0.089, synthetic to real gap). v2 notebook adds public real defect photos | v2 Kaggle run pending |
 | Specification in ChromaDB + LLM explanation | Next |
 | Trend Analysis, Lab Chatbot | Later |
-| Electron and React interface | Later |
+| React interface: frontend/ (Vite, HashRouter). Login, Samples, layout, api.js done; SampleDetail, ReviewQueue, ReportView have TODOs for Faiza | In progress. Electron wrap later |
 
 ## Measured results (31 Oct 2026, 100 lab report images)
 
