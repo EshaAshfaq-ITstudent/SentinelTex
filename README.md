@@ -172,9 +172,12 @@ Then open http://127.0.0.1:8000/docs. Accuracy results so far: `docs/test_analys
 ```
 python tests\test_image_analysis.py
 python tests\test_analysis_real_scan.py
+python tests\test_compliance_rules.py
 ```
 
 Without `models\best.pt` the backend still works and the report says Image Analysis was skipped.
+
+**Version 2 (current):** use `notebooks\sentineltex_yolo_training_v2.ipynb` the same way, with two more inputs: the public **Fabric Stain Dataset** (search it under Add Input) and **FabriD** (download it from data.mendeley.com/datasets/vncdwps24r and upload it as a private Kaggle dataset). The notebook's first cell explains everything. Results of each version are in `docs\image_analysis_results.md`.
 
 ---
 

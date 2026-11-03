@@ -3,6 +3,7 @@ The LLM (added later) only explains these results; it never decides them.
 
 Decision rule (specification clauses 5.2 to 5.4):
   any Section 3 failure, or any Major visual defect, or a Minor defect above its limit -> REJECT
+  (a defect seen only by the image model is CHECK MANUALLY until a person confirms it)
   otherwise, any Section 3 result missing or unreadable                               -> NOT VERIFIABLE
   otherwise                                                                            -> ACCEPT
 """
@@ -88,7 +89,10 @@ def assess(rules: dict, test_results: list[dict] | None, visual_text: str | None
         v = visual_rules.get(f["defect"])
         if v is None:
             continue
-        if v["cls"] == "Major":
+        if sources[f["defect"]] == "image analysis":
+            # Found only by the image model: a person must confirm it before it can fail the lot
+            result = "CHECK MANUALLY"
+        elif v["cls"] == "Major":
             result = "FAIL"
         else:
             per_m = f["count"] / sample_len
