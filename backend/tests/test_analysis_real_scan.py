@@ -12,7 +12,7 @@ from app.database import SessionLocal
 from app.models import Role, User
 from app.security import hash_password
 
-scan = sys.argv[1] if len(sys.argv) > 1 else "../data/documents/sentineltex_documents_v2/lab_reports/scans/STTL-TR-2026-0080.jpg"
+scan = sys.argv[1] if len(sys.argv) > 1 else "../data/documents/lab_reports/scans/STTL-TR-2026-0080.jpg"
 c = TestClient(app)
 db = SessionLocal(); db.add(User(username="analyst", full_name="A", role=Role.LAB_ANALYST, password_hash=hash_password("password123"))); db.commit(); db.close()
 H = {"Authorization": "Bearer " + c.post("/auth/login", data={"username": "analyst", "password": "password123"}).json()["access_token"]}

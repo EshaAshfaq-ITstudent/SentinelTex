@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.vision.detect import detect, model_status  # noqa: E402
 
-DEFAULT = "../data/images/sentineltex_dataset_v1/images/test"
+DEFAULT = "../data/images/images/test"
 status = model_status()
 print("Model:", json.dumps(status))
 if not status["available"]:

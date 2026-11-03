@@ -1,0 +1,152 @@
+{
+  "version": "v2",
+  "chosen_conf": 0.1,
+  "val_conf_sweep": [
+    {
+      "conf": 0.05,
+      "defect_found_correctly": 6,
+      "defect_missed": 2,
+      "clean_flagged_wrongly": 11,
+      "clean_passed_correctly": 9,
+      "precision": 0.353,
+      "recall": 0.75,
+      "f1": 0.48
+    },
+    {
+      "conf": 0.1,
+      "defect_found_correctly": 5,
+      "defect_missed": 3,
+      "clean_flagged_wrongly": 6,
+      "clean_passed_correctly": 14,
+      "precision": 0.455,
+      "recall": 0.625,
+      "f1": 0.526
+    },
+    {
+      "conf": 0.15,
+      "defect_found_correctly": 3,
+      "defect_missed": 5,
+      "clean_flagged_wrongly": 4,
+      "clean_passed_correctly": 16,
+      "precision": 0.429,
+      "recall": 0.375,
+      "f1": 0.4
+    },
+    {
+      "conf": 0.2,
+      "defect_found_correctly": 1,
+      "defect_missed": 7,
+      "clean_flagged_wrongly": 2,
+      "clean_passed_correctly": 18,
+      "precision": 0.333,
+      "recall": 0.125,
+      "f1": 0.182
+    },
+    {
+      "conf": 0.25,
+      "defect_found_correctly": 0,
+      "defect_missed": 8,
+      "clean_flagged_wrongly": 1,
+      "clean_passed_correctly": 19,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "conf": 0.3,
+      "defect_found_correctly": 0,
+      "defect_missed": 8,
+      "clean_flagged_wrongly": 1,
+      "clean_passed_correctly": 19,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "conf": 0.4,
+      "defect_found_correctly": 0,
+      "defect_missed": 8,
+      "clean_flagged_wrongly": 1,
+      "clean_passed_correctly": 19,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    },
+    {
+      "conf": 0.5,
+      "defect_found_correctly": 0,
+      "defect_missed": 8,
+      "clean_flagged_wrongly": 1,
+      "clean_passed_correctly": 19,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0
+    }
+  ],
+  "val": {
+    "precision": 0.788,
+    "recall": 0.375,
+    "mAP50": 0.471,
+    "mAP50_95": 0.175,
+    "per_class": {
+      "spot": {
+        "precision": 0.788,
+        "recall": 0.375,
+        "mAP50": 0.471,
+        "mAP50_95": 0.175
+      }
+    }
+  },
+  "test": {
+    "precision": 0.34,
+    "recall": 0.062,
+    "mAP50": 0.108,
+    "mAP50_95": 0.052,
+    "per_class": {
+      "stain": {
+        "precision": 0.362,
+        "recall": 0.25,
+        "mAP50": 0.219,
+        "mAP50_95": 0.153
+      },
+      "spot": {
+        "precision": 1.0,
+        "recall": 0.0,
+        "mAP50": 0.209,
+        "mAP50_95": 0.054
+      },
+      "tear": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "mAP50": 0.0,
+        "mAP50_95": 0.0
+      },
+      "loose_thread": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "mAP50": 0.005,
+        "mAP50_95": 0.002
+      }
+    }
+  },
+  "test_image_level_at_chosen_conf": {
+    "conf": 0.1,
+    "defect_found_correctly": 20,
+    "defect_missed": 8,
+    "clean_flagged_wrongly": 3,
+    "clean_passed_correctly": 27,
+    "precision": 0.87,
+    "recall": 0.714,
+    "f1": 0.784
+  },
+  "test_image_level_at_0.25": {
+    "conf": 0.25,
+    "defect_found_correctly": 7,
+    "defect_missed": 21,
+    "clean_flagged_wrongly": 1,
+    "clean_passed_correctly": 29,
+    "precision": 0.875,
+    "recall": 0.25,
+    "f1": 0.389
+  }
+}
