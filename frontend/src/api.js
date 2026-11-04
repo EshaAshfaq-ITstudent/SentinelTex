@@ -1,7 +1,9 @@
 // Every call to the SentinelTex backend goes through here.
 // The login token is kept in sessionStorage, so closing the app logs the user out.
 
-const API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+// In development (npm run dev, port 5173) the API is on port 8000. In the desktop app the backend serves
+// the interface itself, so the API is on the same address and a relative path is enough.
+const API = import.meta.env.VITE_API_URL || (window.location.port === '5173' ? 'http://127.0.0.1:8000' : '')
 
 export function getToken() {
   try { return sessionStorage.getItem('st_token') } catch { return null }

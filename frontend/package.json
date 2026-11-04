@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "desktop": "vite build && electron .",
+    "desktop:dev": "electron . --dev",
+    "dist:win": "vite build && electron-builder --win portable"
   },
   "dependencies": {
     "react": "19.2.0",
@@ -15,6 +18,25 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "5.0.4",
+    "electron": "37.6.0",
+    "electron-builder": "26.18.0",
     "vite": "7.1.9"
+  },
+  "main": "electron/main.cjs",
+  "description": "SentinelTex desktop app",
+  "author": "Esha Ashfaq, Maham Imran, Faiza Altaf",
+  "build": {
+    "appId": "pk.edu.bahria.sentineltex",
+    "productName": "SentinelTex",
+    "files": [
+      "electron/**"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "electron/icon.png"
+    }
   }
 }

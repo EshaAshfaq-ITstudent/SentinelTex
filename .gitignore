@@ -15,3 +15,6 @@ chroma_db/
 # Node / Electron
 node_modules/
 dist/
+# Desktop app builds
+frontend/release/
+backend/desktop_backend.log

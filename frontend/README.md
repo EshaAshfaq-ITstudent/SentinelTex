@@ -1,6 +1,6 @@
-# SentinelTex frontend (React)
+# SentinelTex frontend (React + Electron)
 
-The desktop interface. React pages first (in the browser), Electron wraps them into a desktop app at the end.
+The desktop interface: React pages, shown in an Electron window as a desktop app.
 
 ## Run it (two terminals)
 
@@ -21,6 +21,33 @@ npm run dev
 Open http://localhost:5173 and log in with the users made by `python seed_users.py` (analyst, am, dm).
 Save a file and the page updates by itself.
 
+## Desktop app (Electron)
+
+The desktop app opens its own SentinelTex window, starts the backend by itself, and stops it when the window closes.
+Only one terminal is needed. Ollama must be running for LLM answers.
+
+```
+cd %USERPROFILE%\SentinelTex\frontend
+npm install
+npm run desktop
+```
+
+* `npm run desktop` builds the interface (`dist`) and opens the app. The backend serves the built interface at
+  http://127.0.0.1:8000, so the window and the API share one local address.
+* `npm run desktop:dev` opens the window on the Vite dev server instead (run `npm run dev` and the backend first),
+  for working on pages with instant reload.
+* `npm run dist:win` makes a single `SentinelTex.exe` in `frontend\release`. It is a launcher: it still uses the
+  project folder `%USERPROFILE%\SentinelTex` (its venv, models, data and database). Set `SENTINELTEX_HOME` if the
+  project is somewhere else.
+* If the backend does not start, the window says so; the reason is in `backend\desktop_backend.log`.
+* Air gapped: the window shows only the local app. Any outside link is blocked, and no new windows can open.
+
+| File | What it does |
+|---|---|
+| `electron/main.cjs` | Starts and stops the backend, waits for it, opens the window, blocks outside links |
+| `electron/icon.png` | App icon |
+| `package.json` "build" | Settings for the .exe (electron-builder, portable) |
+
 ## Files
 
 | File | What it does | Status |
@@ -37,7 +64,10 @@ Save a file and the page updates by itself.
 | `src/pages/SampleDetail.jsx` | Analyst: upload photo and lab report, run analysis | **Faiza: 2 TODOs** |
 | `src/pages/ReviewQueue.jsx` | AM / DM: reports waiting for review | **Faiza: 2 TODOs** |
 | `src/pages/ReportView.jsx` | Quality Assessment Report, approve or reject | **Faiza: 4 TODOs** |
-| `src/pages/ComingSoon.jsx` | Placeholder for Image Analysis, Test Analysis, Trend Analysis, Lab Chatbot | Later |
+| `src/pages/TestAnalysis.jsx` | AM / DM: OCR and compliance overview | Done (Faiza) |
+| `src/pages/TrendAnalysis.jsx` | AM / DM: trends | Done |
+| `src/pages/LabChatbot.jsx` | AM / DM: chatbot | Done |
+| `src/pages/ComingSoon.jsx` | Placeholder for Image Analysis | Maham |
 
 Every TODO comment says which `api.js` function to call and what to show.
 Copy the pattern from `Samples.jsx`: `useState` keeps the data, `useEffect` loads it, `try/catch` shows errors.

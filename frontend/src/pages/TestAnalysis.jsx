@@ -39,16 +39,10 @@ export default function TestAnalysis() {
     const checks = details.compliance?.checks || []
     const results = analysis.results || []
 
-    const manualClauses = new Set(
-      checks
-        .filter((c) => c.result === 'CHECK MANUALLY')
-        .map((c) => String(c.clause))
-    )
-
-    const ocrResults = results.filter(
-      (r) => !manualClauses.has(String(r.clause))
-    )
-
+    // Only the lab report's own values belong here (image analysis findings are on the Image Analysis page)
+    const labChecks = checks.filter((c) => c.source === 'lab report')
+    // Values the OCR found on the page, and how many of them it read clearly (not flagged CHECK MANUALLY)
+    const ocrResults = results.filter((r) => r.found)
     const valuesRead = ocrResults.filter(
       (r) => r.status === 'ok' && r.value !== null && r.value !== undefined
     ).length
@@ -59,15 +53,15 @@ export default function TestAnalysis() {
       checks,
       ocrResults,
       valuesRead,
-      manualCount: checks.filter((c) => c.result === 'CHECK MANUALLY').length,
-      failCount: checks.filter((c) => c.result === 'FAIL').length,
+      manualCount: labChecks.filter((c) => c.result === 'CHECK MANUALLY').length,
+      failCount: labChecks.filter((c) => c.result === 'FAIL').length,
       decision: details.compliance?.decision || report.decision || 'Pending',
     }
   }), [reports])
 
   const stats = useMemo(() => {
     const totalLabReports = rows.filter(
-      (r) => r.analysis.file || r.analysis.results
+      (r) => r.analysis.file || r.analysis.results || r.analysis.error
     ).length
 
     const totalValues = rows.reduce((n, r) => n + r.ocrResults.length, 0)
@@ -75,7 +69,7 @@ export default function TestAnalysis() {
 
     const failedClauses = {}
     rows.forEach((row) => {
-      row.checks.filter((c) => c.result === 'FAIL').forEach((c) => {
+      row.checks.filter((c) => c.result === 'FAIL' && c.source === 'lab report').forEach((c) => {
         failedClauses[c.clause] = (failedClauses[c.clause] || 0) + 1
       })
     })
@@ -87,7 +81,7 @@ export default function TestAnalysis() {
       totalLabReports,
       percentage: totalValues ? Math.round(readValues / totalValues * 100) : 0,
       mostFailed: mostFailed
-        ? `${mostFailed[0]} (${mostFailed[1]} failures)`
+        ? `${mostFailed[0]} (${mostFailed[1]} ${mostFailed[1] === 1 ? 'failure' : 'failures'})`
         : 'No failed clauses',
     }
   }, [rows])
@@ -103,7 +97,7 @@ export default function TestAnalysis() {
   if (loading) return <div className="pad muted">Loading test analysis...</div>
 
   return (
-    <div className="pad">
+    <>
       <h1>Test Analysis</h1>
       <p className="muted">
         Laboratory report OCR results and compliance verification overview.
@@ -118,8 +112,9 @@ export default function TestAnalysis() {
         </div>
 
         <div className="card" style={{ flex: 1, minWidth: 180 }}>
-          <p className="muted">OCR Clearly Read Values</p>
+          <p className="muted">OCR values read clearly</p>
           <h2>{stats.percentage}%</h2>
+          <p className="muted" style={{ fontSize: 12, margin: 0 }}>not flagged CHECK MANUALLY (accuracy against the answer keys is in the results document)</p>
         </div>
 
         <div className="card" style={{ flex: 1, minWidth: 180 }}>
@@ -176,6 +171,6 @@ export default function TestAnalysis() {
           </tbody>
         </table>
       </div>
-    </div>
+    </>
   )
 }

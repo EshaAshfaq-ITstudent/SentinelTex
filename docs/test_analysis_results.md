@@ -63,8 +63,9 @@ Assistant Manager (AM) and Deputy Manager (DM) roles.
 The page provides three summary metrics:
 
 - **Total Lab Reports:** Number of reports containing lab report data.
-- **OCR Clearly Read Values:** Percentage of OCR values that were
-  clearly extracted, excluding values requiring manual verification.
+- **OCR values read clearly:** Of all test values the OCR found on the
+  reports, the percentage it read clearly (not flagged CHECK MANUALLY).
+  This is not accuracy: accuracy against the answer keys is reported above.
 - **Most Failed Clause:** Clause with the highest number of failed
   compliance checks.
 
@@ -77,8 +78,8 @@ The interface displays the following information for each sample:
 | Sample | Sample identification number |
 | Lab Report File | Uploaded laboratory report filename |
 | Values Read | Number of extracted test values |
-| CHECK MANUALLY | Number of values requiring manual verification |
-| FAIL | Number of failed compliance checks |
+| CHECK MANUALLY | Number of lab report values requiring manual verification |
+| FAIL | Number of lab report clauses that failed |
 | Decision | Final compliance decision |
 
 Selecting a row opens the corresponding report details page.
