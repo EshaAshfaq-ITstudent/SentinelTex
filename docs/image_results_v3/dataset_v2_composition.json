@@ -1,0 +1,37 @@
+{
+  "images": {
+    "train": {
+      "ours_real": 162,
+      "ours_synthetic": 252,
+      "public_fabrid": 68,
+      "public_priemshpathirana": 58
+    },
+    "val": {
+      "ours_real": 28,
+      "public_fabrid": 12,
+      "public_priemshpathirana": 10
+    },
+    "test": {
+      "ours_real": 58
+    }
+  },
+  "boxes": {
+    "train": {
+      "spot": 153,
+      "tear": 61,
+      "pattern_defect": 56,
+      "discoloration": 76,
+      "stain": 82,
+      "loose_thread": 81
+    },
+    "val": {
+      "spot": 8
+    },
+    "test": {
+      "loose_thread": 12,
+      "tear": 4,
+      "spot": 4,
+      "stain": 12
+    }
+  }
+}

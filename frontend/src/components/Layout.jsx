@@ -1,11 +1,10 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { ROLE_NAMES, useAuth } from '../auth'
 
-// Menus follow the proposal: AM and DM dashboards have Image Analysis, Test Analysis,
-// Trend Analysis, Lab Chatbot, Report Review and Sign Out.
+// Navigation follows the role permissions of the sample and report APIs.
 const MENUS = {
-  lab_analyst: [['/samples', 'Samples']],
-  am: [['/review', 'Report Review'], ['/image-analysis', 'Image Analysis'], ['/test-analysis', 'Test Analysis'],
+  lab_analyst: [['/samples', 'Samples'], ['/image-analysis', 'Image Analysis']],
+  am: [['/review', 'Report Review'], ['/test-analysis', 'Test Analysis'],
        ['/trends', 'Trend Analysis'], ['/chatbot', 'Lab Chatbot']],
 }
 MENUS.dm = MENUS.am

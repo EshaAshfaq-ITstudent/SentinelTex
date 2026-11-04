@@ -6,10 +6,10 @@ import Samples from './pages/Samples'
 import SampleDetail from './pages/SampleDetail'
 import ReviewQueue from './pages/ReviewQueue'
 import ReportView from './pages/ReportView'
-import ComingSoon from './pages/ComingSoon'
 import LabChatbot from './pages/LabChatbot'
 import TrendAnalysis from './pages/TrendAnalysis'
 import TestAnalysis from './pages/TestAnalysis'
+import ImageAnalysis from './pages/ImageAnalysis'
 
 function home(role) {
   return role === 'lab_analyst' ? '/samples' : '/review'
@@ -35,7 +35,7 @@ export default function App() {
         <Route path="/samples/:code" element={<Guard roles={['lab_analyst']}><SampleDetail /></Guard>} />
         {/* Assistant Manager and Deputy Manager dashboards */}
         <Route path="/review" element={<Guard roles={['am', 'dm']}><ReviewQueue /></Guard>} />
-        <Route path="/image-analysis" element={<Guard roles={['am', 'dm']}><ComingSoon title="Image Analysis" owner="Faiza" /></Guard>} />
+        <Route path="/image-analysis" element={<Guard roles={['lab_analyst']}><ImageAnalysis /></Guard>} />
         <Route path="/test-analysis" element={<Guard roles={['am', 'dm']}><TestAnalysis /></Guard>} />
         <Route path="/trends" element={<Guard roles={['am', 'dm']}><TrendAnalysis /></Guard>} />
         <Route path="/chatbot" element={<Guard roles={['am', 'dm']}><LabChatbot /></Guard>} />
