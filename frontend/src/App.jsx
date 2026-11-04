@@ -9,6 +9,7 @@ import ReportView from './pages/ReportView'
 import ComingSoon from './pages/ComingSoon'
 import LabChatbot from './pages/LabChatbot'
 import TrendAnalysis from './pages/TrendAnalysis'
+import TestAnalysis from './pages/TestAnalysis'
 
 function home(role) {
   return role === 'lab_analyst' ? '/samples' : '/review'
@@ -35,7 +36,7 @@ export default function App() {
         {/* Assistant Manager and Deputy Manager dashboards */}
         <Route path="/review" element={<Guard roles={['am', 'dm']}><ReviewQueue /></Guard>} />
         <Route path="/image-analysis" element={<Guard roles={['am', 'dm']}><ComingSoon title="Image Analysis" owner="Faiza" /></Guard>} />
-        <Route path="/test-analysis" element={<Guard roles={['am', 'dm']}><ComingSoon title="Test Analysis" owner="Faiza" /></Guard>} />
+        <Route path="/test-analysis" element={<Guard roles={['am', 'dm']}><TestAnalysis /></Guard>} />
         <Route path="/trends" element={<Guard roles={['am', 'dm']}><TrendAnalysis /></Guard>} />
         <Route path="/chatbot" element={<Guard roles={['am', 'dm']}><LabChatbot /></Guard>} />
         {/* Everyone */}
