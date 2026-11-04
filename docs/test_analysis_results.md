@@ -51,3 +51,62 @@ compared with the answer key for each report. Engine: Tesseract 5 with our own p
 * Let the reviewer correct a flagged value in the interface
 * Try PaddleOCR on photocopies and compare
 * Read colour fastness grades more reliably on photocopies
+---
+
+## AM and DM Test Analysis Interface
+
+The Test Analysis page is available to authorized users with the
+Assistant Manager (AM) and Deputy Manager (DM) roles.
+
+### Dashboard Overview
+
+The page provides three summary metrics:
+
+- **Total Lab Reports:** Number of reports containing lab report data.
+- **OCR Clearly Read Values:** Percentage of OCR values that were
+  clearly extracted, excluding values requiring manual verification.
+- **Most Failed Clause:** Clause with the highest number of failed
+  compliance checks.
+
+### Test Analysis Table
+
+The interface displays the following information for each sample:
+
+| Column | Description |
+|---|---|
+| Sample | Sample identification number |
+| Lab Report File | Uploaded laboratory report filename |
+| Values Read | Number of extracted test values |
+| CHECK MANUALLY | Number of values requiring manual verification |
+| FAIL | Number of failed compliance checks |
+| Decision | Final compliance decision |
+
+Selecting a row opens the corresponding report details page.
+
+### Error Handling
+
+If OCR processing fails, the interface displays the error returned
+by the backend instead of hiding the failure.
+
+### Application Testing
+
+The page was tested using the existing application reports:
+
+| Sample | Lab Report | Values Read | CHECK MANUALLY | FAIL | Decision |
+|---|---|---:|---:|---:|---|
+| ST-0101 | STTL-TR-2026-0006.pdf | 16 | 0 | 0 | NOT VERIFIABLE |
+| ST-0091 | STTL-TR-2026-0002.pdf | 18 | 0 | 0 | ACCEPT |
+
+**Observations:**
+
+- Both AM and DM can access the Test Analysis page.
+- Lab Analyst users are redirected because they are not authorized
+  to access this page.
+- Selecting a sample opens its existing Report View.
+- ST-0101 is NOT VERIFIABLE because two clauses were not reported.
+- ST-0091 received an ACCEPT decision.
+
+### Access Control
+
+The `/test-analysis` route is protected by role-based access control.
+Only AM and DM roles are authorized to access this page.
