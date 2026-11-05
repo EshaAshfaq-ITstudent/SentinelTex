@@ -79,9 +79,10 @@ def upload_lab_report(sample_code: str, file: UploadFile = File(...), db: Sessio
 
 
 @router.get("/files/{file_id}", tags=["Samples"])
-def download_file(file_id: int, annotated: bool = False, db: Session = Depends(get_db),
+def download_file(file_id: int, annotated: bool = False, ocr_page: bool = False, db: Session = Depends(get_db),
                   user: User = Depends(get_current_user)):
-    """Any logged in user can view an uploaded file. annotated=true gives the photo with defect boxes, if made."""
+    """Any logged in user can view an uploaded file. annotated=true gives the photo with defect boxes, if made;
+    ocr_page=true gives the cleaned lab report page the OCR read (for the evidence view)."""
     record = db.get(SampleFile, file_id)
     if record is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "File not found")
@@ -90,6 +91,11 @@ def download_file(file_id: int, annotated: bool = False, db: Session = Depends(g
         boxed = path.with_name(f"annotated_{path.stem}.jpg")
         if boxed.exists():
             path = boxed
+    if ocr_page:
+        page = path.with_name(f"ocrpage_{path.stem}.png")
+        if not page.exists():
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "No OCR page saved for this file (analyse it again)")
+        path = page
     if not path.exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "File is missing on disk")
     return FileResponse(path)

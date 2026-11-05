@@ -79,7 +79,7 @@ python seed_users.py                 (set passwords for analyst, am, dm)
 | Image Analysis: detect.py connected to /analyze, cutoff 0.05 (chosen on validation in v3). v1/v2/v3 trained, final v3: test mAP50 0.141, photo level 23/28 found, 1/30 false alarm; tear and loose_thread still 0. AM/DM Image Analysis page done (Maham, restructured in review) | Done; models/best.pt from Drive |
 | Specification OCR into ChromaDB (app/rag), LLM explanation (/reports/{id}/explain), Lab Chatbot (/chat) with grounding check | Done, tested with keyword embedding and a fake Ollama; run evaluate_rag.py on the laptop with MiniLM + llama3.2 |
 | Trend Analysis: tools/import_history.py (history CSVs, source 'demo history (synthetic)'), /trends/overview, /trends/clause/{c}, frontend TrendAnalysis.jsx | Done, tested against the CSVs |
-| React interface: all pages done (Image Analysis Maham, Test Analysis Faiza, both reviewed) | Done |
+| React interface: all pages done (Image Analysis Maham, Test Analysis Faiza, both reviewed). Redesign 5 Nov: AM/DM Overview home, decision timeline with approval stamps, evidence view (OCR saves ocrpage_<file>.png and a box per matched line; /samples/files/{id}?ocr_page=true), defect overlay with per type toggles | Done |
 | Electron: frontend/electron/main.cjs starts/stops backend, loads http://127.0.0.1:8000 (backend serves frontend/dist), blocks outside links. npm run desktop / dist:win | Base done and tested on Linux; Windows .exe build and test: Faiza |
 
 ## Measured results (31 Oct 2026, 100 lab report images)

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as api from '../api'
-import AuthImage from '../components/AuthImage'
+import DefectOverlay from '../components/DefectOverlay'
+import Loading from '../components/Loading'
 import StatusBadge from '../components/StatusBadge'
 
 // Image Analysis (AM and DM dashboard): what the YOLO model found in the fabric photos of every analysed report.
@@ -60,7 +61,7 @@ function ReportImages({ row }) {
               <h3 style={{ marginTop: 0 }}>{img.file}</h3>
               {img.error ? <p className="error">{img.error}</p>
                 : !files ? <p className="muted">Loading image…</p>
-                : file ? <AuthImage fileId={file.id} annotated alt={`Defects found in ${img.file}`} />
+                : file ? <DefectOverlay fileId={file.id} boxes={img.boxes} threshold={img.confidence_threshold ?? 0.05} />
                 : <p className="muted">Image file not found.</p>}
             </div>
             <div>
@@ -110,7 +111,7 @@ export default function ImageAnalysis() {
     return { photos, withDefects, top, threshold: rows.find((r) => r.threshold != null)?.threshold }
   }, [rows])
 
-  if (loading) return <p className="muted">Loading image analysis…</p>
+  if (loading) return <Loading text="Loading image analysis…" />
   const pickedRow = rows.find((r) => r.report.id === picked)
 
   return (

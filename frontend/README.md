@@ -58,7 +58,12 @@ npm run desktop
 | `src/theme.css` | Colours and styles (palette from the camo fabric) | Done, extend as needed |
 | `src/components/Layout.jsx` | Sidebar menu per role, Sign Out | Done |
 | `src/components/StatusBadge.jsx` | Coloured PASS / FAIL / REJECT / Waiting badges | Done |
-| `src/components/AuthImage.jsx` | Shows an uploaded photo (with defect boxes) | Done |
+| `src/components/AuthImage.jsx` | Shows an uploaded photo | Done |
+| `src/components/DecisionTimeline.jsx` | Analyst → AM → DM track with approval stamps | Done |
+| `src/components/EvidenceModal.jsx` | Evidence view: where on the scan a value was read | Done |
+| `src/components/DefectOverlay.jsx` | Fabric photo with defect boxes, toggles per defect type, confidence slider | Done |
+| `src/components/Icon.jsx`, `Loading.jsx` | Line icons (offline, inline SVG) and loading spinner | Done |
+| `src/pages/Home.jsx` | AM / DM overview: waiting reports, recent decisions, system status | Done |
 | `src/pages/Login.jsx` | Login | Done (example) |
 | `src/pages/Samples.jsx` | Analyst: sample list and new sample | Done (example) |
 | `src/pages/SampleDetail.jsx` | Analyst: upload photo and lab report, run analysis | **Faiza: 2 TODOs** |

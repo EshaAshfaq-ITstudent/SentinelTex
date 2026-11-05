@@ -9,6 +9,6 @@ const TEXT = {
   pending_am: 'Waiting for AM', pending_dm: 'Waiting for DM', approved: 'Approved',
   returned_for_reanalysis: 'Returned for re-analysis',
 }
-export default function StatusBadge({ value }) {
-  return <span className={`badge ${LOOK[value] || 'neutral'}`}>{TEXT[value] || value}</span>
+export default function StatusBadge({ value, big = false }) {
+  return <span className={`badge ${LOOK[value] || 'neutral'}${big ? ' big' : ''}`}>{TEXT[value] || value}</span>
 }

@@ -1,12 +1,16 @@
-
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import * as api from '../api'
 import { useAuth } from '../auth'
 import StatusBadge from '../components/StatusBadge'
-import AuthImage from '../components/AuthImage'
 import ExplanationPanel from '../components/ExplanationPanel'
+import DecisionTimeline from '../components/DecisionTimeline'
+import EvidenceModal from '../components/EvidenceModal'
+import DefectOverlay from '../components/DefectOverlay'
+import Loading from '../components/Loading'
 
+// Quality Assessment Report. Loading, review rules and approval logic: Faiza Altaf.
+// Layout, decision timeline, evidence view and defect overlay: interface redesign.
 export default function ReportView() {
   const { id } = useParams()
   const { user } = useAuth()
@@ -17,20 +21,17 @@ export default function ReportView() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
   const [reviewing, setReviewing] = useState(false)
+  const [evidence, setEvidence] = useState(null)
 
   const load = async () => {
     setLoading(true)
     setError('')
-
     try {
       const reportData = await api.getReport(id)
       setReport(reportData)
-
       try {
-        const sampleData = await api.getSample(reportData.sample_code)
-        setSample(sampleData)
-      } catch (sampleError) {
-        console.error('Could not load sample files:', sampleError)
+        setSample(await api.getSample(reportData.sample_code))
+      } catch {
         setSample(null)
       }
     } catch (e) {
@@ -40,19 +41,15 @@ export default function ReportView() {
     }
   }
 
-  useEffect(() => {
-    load()
-  }, [id])
+  useEffect(() => { load() }, [id])
 
   const handleReview = async (approve) => {
     if (!approve && !comment.trim()) {
       setError('A comment is required when rejecting a report.')
       return
     }
-
     setReviewing(true)
     setError('')
-
     try {
       await api.reviewReport(report.id, approve, comment.trim())
       setComment('')
@@ -64,295 +61,127 @@ export default function ReportView() {
     }
   }
 
-  if (loading) return <p className="muted">Loading report...</p>
+  if (loading && !report) return <Loading text="Loading report…" />
   if (error && !report) return <div className="error">{error}</div>
   if (!report) return <p className="muted">Report not found.</p>
 
   const d = api.reportDetails(report)
   const checks = d.compliance?.checks || []
-  const imageAnalysis = d.image_analysis || {}
-  const analyzedImages = imageAnalysis.images || []
-  const uploadedImages = (sample?.files || []).filter(
-    (file) => file.kind === 'image'
-  )
-
-  const canReview =
-    (user?.role === 'am' && report.status === 'pending_am') ||
-    (user?.role === 'dm' && report.status === 'pending_dm')
-
-  const findFile = (name) =>
-    sample?.files?.find(
-      (file) =>
-        file.original_name === name ||
-        file.original_name?.toLowerCase() === name?.toLowerCase()
-    )
+  const ta = d.test_analysis || {}
+  const ia = d.image_analysis || {}
+  const files = sample?.files || []
+  const labFile = files.find((f) => f.kind === 'lab_report' && f.original_name === ta.file)
+    || [...files].reverse().find((f) => f.kind === 'lab_report')
+  const imageFile = (name) => files.find((f) => f.kind === 'image' && f.original_name === name)
+  const boxFor = (clause) => (ta.results || []).find((r) => r.clause === clause)?.box
+  const canReview = (user?.role === 'am' && report.status === 'pending_am') || (user?.role === 'dm' && report.status === 'pending_dm')
+  const counts = checks.reduce((c, x) => ({ ...c, [x.result]: (c[x.result] || 0) + 1 }), {})
 
   return (
     <>
-      <h1>
-        Quality Assessment Report · {report.sample_code} v{report.version}
-      </h1>
+      <div className="page-head">
+        <div>
+          <div className="eyebrow">Quality Assessment Report</div>
+          <h1>{report.sample_code} <span className="muted" style={{ fontWeight: 400 }}>· version {report.version}</span></h1>
+          <p className="muted">Specification {sample?.specification || 'STS/UC/01'} · analysed {new Date(report.created_at).toLocaleString()}</p>
+        </div>
+        <div className="row">
+          <StatusBadge value={report.decision} big />
+        </div>
+      </div>
 
       {error && <div className="error">{error}</div>}
 
-      <div className="card row">
-        <StatusBadge value={report.decision} />
-        <StatusBadge value={report.status} />
-        <span className="muted">
-          {new Date(report.created_at).toLocaleString()}
-        </span>
-      </div>
+      <section className="card">
+        <h2>Approval</h2>
+        <DecisionTimeline report={report} />
+      </section>
 
-      <div className="card">
-        <h3>Assessment Summary</h3>
-        <p style={{ margin: 0 }}>{report.summary}</p>
+      <div className="tiles">
+        <div className="tile"><div className="tile-label">Clauses passed</div><div className="tile-value" style={{ color: 'var(--pass)' }}>{counts.PASS || 0}</div></div>
+        <div className="tile"><div className="tile-label">Clauses failed</div><div className="tile-value" style={{ color: '#ee7a76' }}>{counts.FAIL || 0}</div><div className="tile-sub">{(d.compliance?.failed_clauses || []).join(', ') || 'none'}</div></div>
+        <div className="tile"><div className="tile-label">Check manually / not reported</div><div className="tile-value" style={{ color: 'var(--check)' }}>{(counts['CHECK MANUALLY'] || 0) + (counts['NOT REPORTED'] || 0)}</div><div className="tile-sub">a person decides these</div></div>
       </div>
 
       <ExplanationPanel report={report} details={d} />
 
-      {/* TODO 1: Compliance clause table */}
       <section className="card">
-        <h2>Compliance Assessment</h2>
-
-        <p className="muted">
-          {checks.length} clauses evaluated against the selected specification.
-        </p>
-
-        {checks.length === 0 ? (
-          <p className="muted">No compliance checks available.</p>
-        ) : (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  <th>Clause</th>
-                  <th>Property</th>
-                  <th>Requirement</th>
-                  <th>Value</th>
-                  <th>Result</th>
-                  <th>Source</th>
-                </tr>
-              </thead>
-
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <h2 style={{ margin: 0 }}>Compliance assessment</h2>
+          {labFile && <span className="muted" style={{ fontSize: 13 }}>Click an underlined value to see where it was read on the scan</span>}
+        </div>
+        {ta.error && <p className="error">{ta.error}</p>}
+        {checks.length === 0 ? <p className="muted">No compliance checks available.</p> : (
+          <div style={{ overflowX: 'auto', marginTop: 8 }}>
+            <table>
+              <thead><tr><th>Clause</th><th>Property</th><th>Requirement</th><th>Value</th><th>Result</th><th>Source</th></tr></thead>
               <tbody>
-                {checks.map((c, index) => (
-                  <tr key={`${c.clause}-${index}`}>
-                    <td>{c.clause || '—'}</td>
-
-                    <td>
-                      <strong>{c.property || '—'}</strong>
-                      {c.direction && (
-                        <div className="muted">{c.direction}</div>
-                      )}
-                    </td>
-
-                    <td>
-                      {c.requirement || 'Not specified'}
-                      {c.unit ? ` ${c.unit}` : ''}
-                    </td>
-
-                    <td>
-                      {c.value ?? 'Not reported'}
-                      {c.value !== null &&
-                        c.value !== undefined &&
-                        c.unit
-                        ? ` ${c.unit}`
-                        : ''}
-                      {c.raw_line && (
-                        <div
-                          className="muted"
-                          style={{
-                            fontSize: 12,
-                            marginTop: 4,
-                            maxWidth: 260,
-                            whiteSpace: 'normal',
-                          }}
-                        >
-                          OCR: {c.raw_line}
-                        </div>
-                      )}
-                    </td>
-
-                    <td>
-                      <StatusBadge value={c.result || 'UNKNOWN'} />
-                    </td>
-
-                    <td>{c.source || '—'}</td>
-                  </tr>
-                ))}
+                {checks.map((c, i) => {
+                  const box = c.source === 'lab report' ? boxFor(c.clause) : null
+                  const value = c.value ?? 'Not reported'
+                  return (
+                    <tr key={`${c.clause}-${i}`}>
+                      <td><b>{c.clause}</b></td>
+                      <td>{c.property}{c.direction && <div className="muted" style={{ fontSize: 13 }}>{c.direction}</div>}</td>
+                      <td>{c.requirement}{c.unit && c.unit !== 'count' ? ` ${c.unit}` : ''}</td>
+                      <td>
+                        {box && labFile
+                          ? <button className="value-link" onClick={() => setEvidence({ ...c, box })}>{value}{c.value != null && c.unit && c.unit !== 'count' ? ` ${c.unit}` : ''}</button>
+                          : <>{value}{c.value != null && c.unit && c.unit !== 'count' ? ` ${c.unit}` : ''}</>}
+                        {c.raw_line && !box && <div className="muted" style={{ fontSize: 12, maxWidth: 260 }}>OCR: {c.raw_line}</div>}
+                      </td>
+                      <td><StatusBadge value={c.result} /></td>
+                      <td className="muted">{c.source}</td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
         )}
       </section>
 
-      {/* Uploaded fabric photos */}
       <section className="card">
-        <h2>Uploaded Fabric Images</h2>
-
-        {uploadedImages.length === 0 ? (
-          <p className="muted">No fabric images found.</p>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: 16,
-            }}
-          >
-            {uploadedImages.map((file) => (
-              <div key={file.id}>
-                <AuthImage
-                  fileId={file.id}
-                  alt={file.original_name}
-                  style={{
-                    width: '100%',
-                    maxHeight: 260,
-                    objectFit: 'contain',
-                  }}
-                />
-                <p className="muted">{file.original_name}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        <h2>Fabric photos and detected defects</h2>
+        {ia.skipped ? <p className="muted">{ia.skipped}</p>
+          : !(ia.images || []).length ? <p className="muted">No fabric photos were analysed for this report.</p>
+          : <div className="grid-2">
+              {ia.images.map((img, i) => {
+                const f = imageFile(img.file)
+                return (
+                  <div key={i}>
+                    <h3>{img.file} <span className="muted" style={{ fontWeight: 400 }}>· {img.defects_found ?? 0} boxes</span></h3>
+                    {img.error ? <p className="error">{img.error}</p>
+                      : f ? <DefectOverlay fileId={f.id} boxes={img.boxes} threshold={img.confidence_threshold ?? 0.05} />
+                      : <p className="muted">Image file not found.</p>}
+                  </div>
+                )
+              })}
+            </div>}
+        {(ia.images || []).length > 0 && <p className="muted" style={{ fontSize: 13 }}>Defects seen only by the model are marked CHECK MANUALLY above: a reviewer confirms them by looking at the photo.</p>}
       </section>
 
-      {/* TODO 2: Image analysis */}
-      <section className="card">
-        <h2>Image Analysis & Defect Detection</h2>
-
-        {imageAnalysis.skipped ? (
-          <p className="muted">{imageAnalysis.skipped}</p>
-        ) : analyzedImages.length > 0 ? (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-              gap: 16,
-            }}
-          >
-            {analyzedImages.map((item, index) => {
-              const file = findFile(item.file)
-
-              return (
-                <div key={`${item.file}-${index}`}>
-                  {file ? (
-                    <AuthImage
-                      fileId={file.id}
-                      annotated
-                      alt={`Defect analysis: ${item.file}`}
-                    />
-                  ) : (
-                    <p className="muted">
-                      Image file not found: {item.file}
-                    </p>
-                  )}
-
-                  <strong>{item.file}</strong>
-
-                  {item.counts && (
-                    <pre style={{ whiteSpace: 'pre-wrap' }}>
-                      {JSON.stringify(item.counts, null, 2)}
-                    </pre>
-                  )}
-
-                  {item.boxes && (
-                    <p className="muted">
-                      Detected defect regions: {item.boxes.length}
-                    </p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        ) : (
-          <p className="muted">
-            No image analysis results are available for this report.
-          </p>
-        )}
-      </section>
-
-      {/* TODO 3: Review history */}
-      <section className="card">
-        <h2>Review History</h2>
-
-        {!report.reviews || report.reviews.length === 0 ? (
-          <p className="muted">No reviews have been submitted yet.</p>
-        ) : (
-          <div style={{ display: 'grid', gap: 12 }}>
-            {report.reviews.map((review, index) => (
-              <div
-                key={review.id || index}
-                style={{
-                  borderLeft: '3px solid var(--border, #999)',
-                  paddingLeft: 14,
-                }}
-              >
-                <div className="row">
-                  <strong>{String(review.role || 'Reviewer').toUpperCase()}</strong>
-
-                  <StatusBadge
-                    value={review.approved ? 'APPROVED' : 'REJECTED'}
-                  />
-                </div>
-
-                <p>{review.comment || 'No comment provided.'}</p>
-
-                <small className="muted">
-                  {review.created_at
-                    ? new Date(review.created_at).toLocaleString()
-                    : ''}
-                </small>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* TODO 4: AM / DM review controls */}
       {canReview && (
-        <section className="card">
-          <h2>Review Decision</h2>
-
-          <p className="muted">
-            This report is waiting for your review.
+        <section className="card" style={{ borderColor: 'var(--check)' }}>
+          <h2>Your review</h2>
+          <p className="muted" style={{ marginTop: 0 }}>
+            {user.role === 'am' ? 'After your approval the report goes to the Deputy Manager.' : 'Your approval is the final sign off.'} Rejecting sends it back to the analyst for re-analysis.
           </p>
-
-          <label htmlFor="review-comment">Reviewer Comment</label>
-
-          <textarea
-            id="review-comment"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            placeholder="Enter your review comments..."
-            rows={4}
-            style={{
-              width: '100%',
-              boxSizing: 'border-box',
-              marginTop: 8,
-              marginBottom: 14,
-            }}
-          />
-
-          <div className="row" style={{ gap: 12 }}>
-            <button
-              type="button"
-              disabled={reviewing}
-              onClick={() => handleReview(true)}
-            >
-              {reviewing ? 'Processing...' : 'Approve Report'}
+          <textarea id="review-comment" value={comment} onChange={(e) => setComment(e.target.value)}
+                    placeholder="Comment (required when rejecting)" rows={3} style={{ width: '100%', marginBottom: 12 }} />
+          <div className="row">
+            <button type="button" className="ok" disabled={reviewing} onClick={() => handleReview(true)}>
+              {reviewing ? 'Processing…' : 'Approve Report'}
             </button>
-
-            <button
-              type="button"
-              disabled={reviewing || !comment.trim()}
-              onClick={() => handleReview(false)}
-            >
-              {reviewing ? 'Processing...' : 'Reject Report'}
+            <button type="button" className="danger" disabled={reviewing || !comment.trim()} onClick={() => handleReview(false)}>
+              {reviewing ? 'Processing…' : 'Reject Report'}
             </button>
           </div>
         </section>
+      )}
+
+      {evidence && labFile && (
+        <EvidenceModal fileId={labFile.id} check={evidence} pageSize={ta.page_size} onClose={() => setEvidence(null)} />
       )}
     </>
   )

@@ -34,7 +34,7 @@ def run_analysis(sample) -> tuple[str, str, dict]:
     if lab_reports:
         latest = max(lab_reports, key=lambda f: f.uploaded_at)
         try:
-            ocr = extract_report(latest.stored_path, spec_id=sample.specification)
+            ocr = extract_report(latest.stored_path, spec_id=sample.specification, save_page=True)
             ocr["file"] = latest.original_name
             details["test_analysis"] = ocr
         except Exception as e:                     # unreadable file: report it, do not crash the request

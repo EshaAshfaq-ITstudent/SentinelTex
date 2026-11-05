@@ -126,17 +126,60 @@ GOOD_ENOUGH = 14   # rows read cleanly; below this, try the next page candidate 
 MAX_ATTEMPTS = 4
 
 
-def extract_report(path: str | Path, spec_id: str | None = None) -> dict:
-    """Try page candidates until enough rows are read; keep the best attempt."""
+def extract_report(path: str | Path, spec_id: str | None = None, save_page: bool = False) -> dict:
+    """Try page candidates until enough rows are read; keep the best attempt.
+
+    save_page=True also stores the cleaned page the OCR read (ocrpage_<name>.png next to the upload) and the
+    position of every matched line on it, so the interface can show where each value was read (evidence view).
+    """
     best = None
     for n, (clean, prep) in enumerate(prepare_variants(path), 1):
         result = _read(clean, prep, spec_id)
         ok = sum(1 for r in result["results"] if r["status"] == "ok")
         if best is None or ok > best[0]:
-            best = (ok, result)
+            best = (ok, result, clean)
         if ok >= GOOD_ENOUGH or n >= MAX_ATTEMPTS:
             break
-    return best[1]
+    result, clean = best[1], best[2]
+    if save_page:
+        try:
+            _add_evidence(result, clean, Path(path))
+        except Exception as e:                       # evidence is a convenience: never fail the analysis for it
+            result["evidence_error"] = str(e)
+    return result
+
+
+def _add_evidence(result: dict, clean, path: Path) -> None:
+    """Locate each matched line on the cleaned page with Tesseract's word boxes and save that page."""
+    import cv2
+    data = pytesseract.image_to_data(clean, config="--psm 6", output_type=pytesseract.Output.DICT)
+    groups = {}
+    for i, word in enumerate(data["text"]):
+        if not word.strip():
+            continue
+        key = (data["block_num"][i], data["par_num"][i], data["line_num"][i])
+        g = groups.setdefault(key, {"words": [], "x1": 10**9, "y1": 10**9, "x2": 0, "y2": 0})
+        g["words"].append(word)
+        g["x1"] = min(g["x1"], data["left"][i]); g["y1"] = min(g["y1"], data["top"][i])
+        g["x2"] = max(g["x2"], data["left"][i] + data["width"][i]); g["y2"] = max(g["y2"], data["top"][i] + data["height"][i])
+    lines = [(_norm(" ".join(g["words"])), g) for g in groups.values()]
+    for r in result["results"] + ([{"raw_line": result.get("visual_text"), "_visual": True}] if result.get("visual_text") else []):
+        if not r.get("raw_line"):
+            continue
+        want = _norm(r["raw_line"])
+        score, g = max(((difflib.SequenceMatcher(None, want, t).ratio(), g) for t, g in lines), key=lambda x: x[0], default=(0, None))
+        if g is not None and score >= 0.6:
+            box = [g["x1"], g["y1"], g["x2"] - g["x1"], g["y2"] - g["y1"]]
+            if r.get("_visual"):
+                result["visual_box"] = box
+            else:
+                r["box"] = box
+    page = path.with_name(f"ocrpage_{path.stem}.png")
+    ok, buf = cv2.imencode(".png", clean)
+    if ok:
+        buf.tofile(str(page))
+        result["page_image"] = page.name
+        result["page_size"] = [int(clean.shape[1]), int(clean.shape[0])]
 
 
 def _read(clean, prep: dict, spec_id: str | None) -> dict:

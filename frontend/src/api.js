@@ -64,8 +64,8 @@ export const uploadLabReport = (code, file) => upload(code, 'lab-report', file)
 export const analyzeSample = (code) => request(`/samples/${code}/analyze`, { method: 'POST' })
 
 // Uploaded files need the login token, so they are fetched as a blob and shown with an object URL
-export async function fileUrl(fileId, annotated = false) {
-  const res = await request(`/samples/files/${fileId}?annotated=${annotated}`, { raw: true })
+export async function fileUrl(fileId, annotated = false, ocrPage = false) {
+  const res = await request(`/samples/files/${fileId}?annotated=${annotated}&ocr_page=${ocrPage}`, { raw: true })
   return URL.createObjectURL(await res.blob())
 }
 
