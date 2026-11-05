@@ -20,6 +20,7 @@ report back for re-analysis. Roles: Lab Analyst, AM, DM.
 * One fabric only: the team's digital camouflage ripstop uniform. One specification: STS/UC/01.
 * Chatbot refuses when retrieval similarity is below a threshold (no LLM call); every LLM answer is checked: cited clauses and numbers must appear in the given context.
 * Code decides pass or fail against clauses. The LLM only explains and cites the clause; it never decides.
+* Image Analysis is an AM and DM review page (proposal), not an analyst upload tool; analysts upload photos on the sample page.
 * A defect found only by the image model is CHECK MANUALLY (a person confirms); only lab report findings can FAIL visual clauses.
 * Unreadable or doubtful values are flagged "CHECK MANUALLY", never guessed. Missing results give "NOT VERIFIABLE".
 * Everything runs locally. Cloud GPU (Kaggle) is used only to train the image model during development.
@@ -75,10 +76,10 @@ python seed_users.py                 (set passwords for analyst, am, dm)
 |---|---|
 | Backend: login, roles, samples, uploads, AM then DM approval | Done, tested |
 | Test Analysis (OCR) + compliance check | Done, tested, connected to /analyze |
-| Image Analysis: detect.py connected to /analyze. v1 trained (real test mAP50 0.089, synthetic to real gap). v2 notebook adds public real defect photos | v2 Kaggle run pending |
+| Image Analysis: detect.py connected to /analyze, cutoff 0.05 (chosen on validation in v3). v1/v2/v3 trained, final v3: test mAP50 0.141, photo level 23/28 found, 1/30 false alarm; tear and loose_thread still 0. AM/DM Image Analysis page done (Maham, restructured in review) | Done; models/best.pt from Drive |
 | Specification OCR into ChromaDB (app/rag), LLM explanation (/reports/{id}/explain), Lab Chatbot (/chat) with grounding check | Done, tested with keyword embedding and a fake Ollama; run evaluate_rag.py on the laptop with MiniLM + llama3.2 |
 | Trend Analysis: tools/import_history.py (history CSVs, source 'demo history (synthetic)'), /trends/overview, /trends/clause/{c}, frontend TrendAnalysis.jsx | Done, tested against the CSVs |
-| React interface: all pages done except AM/DM Image Analysis page (Maham). Test Analysis page (Faiza) reviewed | Done |
+| React interface: all pages done (Image Analysis Maham, Test Analysis Faiza, both reviewed) | Done |
 | Electron: frontend/electron/main.cjs starts/stops backend, loads http://127.0.0.1:8000 (backend serves frontend/dist), blocks outside links. npm run desktop / dist:win | Base done and tested on Linux; Windows .exe build and test: Faiza |
 
 ## Measured results (31 Oct 2026, 100 lab report images)

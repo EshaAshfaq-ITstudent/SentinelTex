@@ -48,7 +48,43 @@ The better image level result comes mainly from the lower cutoff, which was chos
 v1 was not measured at cutoff 0.10, so the two image level results are not directly comparable.
 The validation set is very small (8 boxes, spots only), so model selection on it is weak.
 
-## v3 (next): v2 setup plus the public datasets
+## v3 (run 4 to 5 Nov 2026, final): v2 setup plus public photos
 
-Same notebook, with the Fabric Stain Dataset (CC0 1.0) and FabriD (CC BY 4.0, Mendeley Data, vncdwps24r) actually
-added as inputs. Check the notebook's step 3 and 4 output: every public dataset must show its image counts.
+Notebook: notebooks/sentineltex_yolo_training_v2.ipynb (fixed to find datasets in nested Kaggle folders).
+Results files: docs/image_results_v3/. Test set unchanged (58 real camo photos).
+
+**What the public data added:** 80 FabriD photos and 68 Fabric Stain Dataset photos (train and validation).
+The defect box counts in training are exactly the same as v2, so **all of these were defect free photos**: the
+labelled defect photos of both datasets were not read (their label format was not recognised by the notebook).
+v3 therefore adds real clean fabric photos from other sources, not real tear or loose thread examples.
+
+| Set | Precision | Recall | mAP50 | mAP50-95 |
+|---|---|---|---|---|
+| Validation (50 photos: 28 ours + 22 public, 8 spot boxes) | 0.105 | 0.500 | 0.066 | 0.019 |
+| Test (58 real camo photos, same as v1 and v2) | 0.535 | 0.166 | 0.141 | 0.059 |
+
+Test per class (mAP50): stain 0.441, spot 0.122, tear 0.0, loose_thread 0.0.
+
+Image level on test (is a photo flagged as defective?):
+
+| Cutoff | Defects found | Missed | Clean flagged wrongly | Clean passed | F1 |
+|---|---|---|---|---|---|
+| 0.05 (chosen on validation) | 23 of 28 | 5 | 1 of 30 | 29 | 0.885 |
+| 0.25 (same as v1) | 4 of 28 | 24 | 0 of 30 | 30 | 0.250 |
+
+## Comparison and reading (for the report)
+
+| Version | Training data | Test mAP50 | Stain mAP50 | Photos flagged correctly (cutoff chosen on validation) |
+|---|---|---|---|---|
+| v1 | ours (mostly synthetic defects) | 0.089 | 0.267 | not measured at a validation chosen cutoff |
+| v2 | ours, real defect photos repeated 3 times, model chosen on real validation | 0.108 | 0.219 | 20 of 28, 3 false alarms (cutoff 0.10) |
+| v3 | v2 plus defect free public photos | 0.141 | 0.441 | 23 of 28, 1 false alarm (cutoff 0.05) |
+
+* The model is useful as a **photo level screening aid**: with the validated cutoff it flags 23 of 28 defective
+  real photos with 1 false alarm out of 30 clean ones.
+* It **cannot locate or name every defect**: tears and loose threads are still not found (mAP50 0.0), because the
+  training set has no real photos of them. Stains improved most.
+* This is why the system marks a defect found only by the model as **CHECK MANUALLY** for the reviewer, and the
+  backend uses the validated cutoff 0.05 (backend/app/config.py, SENTINELTEX_DETECT_CONF).
+* The validation set is small (8 boxes), so the chosen cutoff is uncertain; more real defect photos are the
+  main next step (future work).

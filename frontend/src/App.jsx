@@ -35,7 +35,7 @@ export default function App() {
         <Route path="/samples/:code" element={<Guard roles={['lab_analyst']}><SampleDetail /></Guard>} />
         {/* Assistant Manager and Deputy Manager dashboards */}
         <Route path="/review" element={<Guard roles={['am', 'dm']}><ReviewQueue /></Guard>} />
-        <Route path="/image-analysis" element={<Guard roles={['lab_analyst']}><ImageAnalysis /></Guard>} />
+        <Route path="/image-analysis" element={<Guard roles={['am', 'dm']}><ImageAnalysis /></Guard>} />
         <Route path="/test-analysis" element={<Guard roles={['am', 'dm']}><TestAnalysis /></Guard>} />
         <Route path="/trends" element={<Guard roles={['am', 'dm']}><TrendAnalysis /></Guard>} />
         <Route path="/chatbot" element={<Guard roles={['am', 'dm']}><LabChatbot /></Guard>} />

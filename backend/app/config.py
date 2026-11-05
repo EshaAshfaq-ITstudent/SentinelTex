@@ -47,7 +47,9 @@ UPLOAD_DIR = DATA_DIR / "uploads"
 DB_PATH = Path(os.environ.get("SENTINELTEX_DB", BACKEND_DIR / "sentineltex.db"))
 
 MODEL_PATH = Path(os.environ.get("SENTINELTEX_MODEL", PROJECT_DIR / "models" / "best.pt"))
-DETECT_CONF = float(os.environ.get("SENTINELTEX_DETECT_CONF", "0.25"))  # minimum confidence for a defect box
+# minimum confidence for a defect box: 0.05 was chosen on the validation set in the v3 training notebook
+# (photo level on the real test set: 23 of 28 defective photos flagged, 1 of 30 clean photos flagged)
+DETECT_CONF = float(os.environ.get("SENTINELTEX_DETECT_CONF", "0.05"))
 
 ALLOWED_IMAGE_TYPES = {".jpg", ".jpeg", ".png"}
 ALLOWED_REPORT_TYPES = {".jpg", ".jpeg", ".png", ".pdf"}
