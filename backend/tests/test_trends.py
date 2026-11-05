@@ -46,7 +46,7 @@ assert o["total_reports"] == len(summary)
 want = Counter("NOT VERIFIABLE" if s["overall_decision"].startswith("NOT") else s["overall_decision"] for s in summary)
 assert o["decisions"] == dict(want), (o["decisions"], want)
 assert sum(m["total"] for m in o["monthly"]) == len(summary)
-assert "synthetic" in o["note"]
+assert "prepared history dataset" in o["note"] and set(o["by_source"]) == {"Past records"}
 # clause failure counts match the failed clause lists in the CSV (tests and visual defects)
 want_f = Counter(c for s in summary for c in set(s["failed_clauses"].split()))
 assert {cf["clause"]: cf["failed"] for cf in o["clause_failures"]} == dict(want_f)

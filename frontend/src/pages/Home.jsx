@@ -4,6 +4,8 @@ import * as api from '../api'
 import { useAuth } from '../auth'
 import Loading from '../components/Loading'
 import StatusBadge from '../components/StatusBadge'
+import Tile from '../components/Tile'
+import { Glyph } from '../components/Icon'
 
 // Overview for the Assistant Manager and Deputy Manager: what is waiting, recent decisions, system health.
 export default function Home() {
@@ -39,19 +41,19 @@ export default function Home() {
       </div>
 
       <div className="tiles">
-        <div className="tile accent"><div className="tile-label">Waiting for you</div><div className="tile-value">{mine.length}</div><div className="tile-sub">{user.role === 'am' ? 'Assistant Manager' : 'Deputy Manager'} review</div></div>
-        <div className="tile"><div className="tile-label">Fully approved</div><div className="tile-value">{count('approved')}</div><div className="tile-sub">AM and DM signed</div></div>
-        <div className="tile"><div className="tile-label">Returned for re-analysis</div><div className="tile-value">{count('returned_for_reanalysis')}</div><div className="tile-sub">rejected by a reviewer</div></div>
-        <div className="tile"><div className="tile-label">System decision ACCEPT</div><div className="tile-value">{data.length ? Math.round(accept / data.length * 100) : 0}%</div><div className="tile-sub">of {data.length} analysed reports</div></div>
+        <Tile accent icon="inbox" label="Waiting for you" value={mine.length} sub={`${user.role === 'am' ? 'Assistant Manager' : 'Deputy Manager'} review`} />
+        <Tile icon="stamp" tone={count('approved') ? 'pass' : ''} label="Fully approved" value={count('approved')} sub="signed by AM and DM" />
+        <Tile icon="undo" tone={count('returned_for_reanalysis') ? 'fail' : ''} label="Returned for re-analysis" value={count('returned_for_reanalysis')} sub="rejected by a reviewer" />
+        <Tile icon="gauge" label="System decision ACCEPT" value={`${data.length ? Math.round(accept / data.length * 100) : 0}%`} sub={`of ${data.length} analysed reports`} />
       </div>
 
       <div className="grid-2">
         <section className="card">
-          <h2>Waiting for your review</h2>
+          <div className="card-head"><h2><Glyph name="inbox" size={16} tone={mine.length ? 'lit' : ''} />Waiting for your review</h2></div>
           <table><tbody>
             {mine.slice(0, 6).map((r) => (
               <tr key={r.id} className="click" onClick={() => nav(`/reports/${r.id}`)}>
-                <td><b>{r.sample_code}</b> <span className="muted">v{r.version}</span></td>
+                <td><span className="code">{r.sample_code}</span> <span className="muted">v{r.version}</span></td>
                 <td><StatusBadge value={r.decision} /></td>
                 <td className="muted">{new Date(r.created_at).toLocaleDateString()}</td>
               </tr>
@@ -61,11 +63,11 @@ export default function Home() {
           {mine.length > 6 && <Link to="/review">See all {mine.length}</Link>}
         </section>
         <section className="card">
-          <h2>Recent decisions</h2>
+          <div className="card-head"><h2><Glyph name="clock" size={16} />Recent decisions</h2></div>
           <table><tbody>
             {decided.slice(0, 6).map((r) => (
               <tr key={r.id} className="click" onClick={() => nav(`/reports/${r.id}`)}>
-                <td><b>{r.sample_code}</b> <span className="muted">v{r.version}</span></td>
+                <td><span className="code">{r.sample_code}</span> <span className="muted">v{r.version}</span></td>
                 <td><StatusBadge value={r.status} /></td>
                 <td><StatusBadge value={r.decision} /></td>
               </tr>
@@ -76,11 +78,14 @@ export default function Home() {
       </div>
 
       <section className="card">
-        <h2>System status</h2>
+        <div className="card-head"><h2><Glyph name="cpu" size={16} />System status</h2><span className="note">Everything runs on this laptop</span></div>
         <div className="tiles" style={{ marginBottom: 0 }}>
-          <div><div className="tile-label">Image model</div><StatusBadge value={sys?.h?.image_model?.available ? 'PASS' : 'CHECK MANUALLY'} /> <span className="muted">{sys?.h?.image_model?.available ? 'loaded' : 'not available'}</span></div>
-          <div><div className="tile-label">Specification knowledge base</div><StatusBadge value={sys?.k?.chunks ? 'PASS' : 'CHECK MANUALLY'} /> <span className="muted">{sys?.k ? `${sys.k.chunks} clauses, ${sys.k.embedding} search` : '…'}</span></div>
-          <div><div className="tile-label">Local LLM</div><StatusBadge value={sys?.k?.llm?.available ? 'PASS' : 'CHECK MANUALLY'} /> <span className="muted">{sys?.k ? (sys.k.llm.available ? sys.k.llm.model : 'Ollama not running') : '…'}</span></div>
+          <Tile icon="image" tone={sys ? (sys.h?.image_model?.available ? 'pass' : 'check') : ''} small label="Image model"
+                value={!sys ? '…' : sys.h?.image_model?.available ? 'Loaded' : 'Not available'} sub="YOLOv8, fabric defects" />
+          <Tile icon="database" tone={sys ? (sys.k?.chunks ? 'pass' : 'check') : ''} small label="Specification knowledge base"
+                value={!sys ? '…' : sys.k?.chunks ? `${sys.k.chunks} clauses` : 'Empty'} sub={sys?.k ? `${sys.k.embedding} search in ChromaDB` : ''} />
+          <Tile icon="spark" tone={sys ? (sys.k?.llm?.available ? 'pass' : 'check') : ''} small label="Local LLM"
+                value={!sys ? '…' : sys.k?.llm?.available ? 'Ready' : 'Not running'} sub={sys?.k?.llm?.available ? sys.k.llm.model : 'start Ollama to use explanations'} />
         </div>
       </section>
     </>

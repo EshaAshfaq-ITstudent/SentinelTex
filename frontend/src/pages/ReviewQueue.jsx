@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import * as api from '../api'
 import { useAuth } from '../auth'
 import StatusBadge from '../components/StatusBadge'
+import Tile from '../components/Tile'
+import { Glyph } from '../components/Icon'
 
 export default function ReviewQueue() {
   const { user } = useAuth()
@@ -82,7 +84,7 @@ export default function ReviewQueue() {
               onClick={() => navigate(`/reports/${r.id}`)}
               style={{ cursor: 'pointer' }}
             >
-              <td><strong>{r.sample_code}</strong></td>
+              <td><span className="code">{r.sample_code}</span></td>
               <td>v{r.version}</td>
               <td><StatusBadge value={r.decision} /></td>
               <td><StatusBadge value={r.status} /></td>
@@ -108,13 +110,14 @@ export default function ReviewQueue() {
 
   return (
     <>
-      <h1>Report Review Dashboard</h1>
-
-      <p className="muted">
-        {user?.role === 'am'
-          ? 'Assistant Manager: reports waiting for AM approval.'
-          : 'Deputy Manager: reports waiting for DM approval.'}
-      </p>
+      <div className="page-head"><div>
+        <h1>Report Review</h1>
+        <p className="muted">
+          {user?.role === 'am'
+            ? 'Reports waiting for your approval as Assistant Manager. After you approve, they go to the Deputy Manager.'
+            : 'Reports the Assistant Manager approved, waiting for your final sign off as Deputy Manager.'}
+        </p>
+      </div></div>
 
       {error && <div className="error">{error}</div>}
 
@@ -123,21 +126,14 @@ export default function ReviewQueue() {
       ) : (
         <>
           {/* TODO 1: Review count cards */}
-          <div
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 12,
-              marginBottom: 20,
-            }}
-          >
-            <CountCard title="Waiting for Me" count={reports.length} />
-            <CountCard title="Approved" count={approved.length} />
-            <CountCard title="Returned" count={returned.length} />
+          <div className="tiles">
+            <Tile accent icon="inbox" label="Waiting for you" value={reports.length} />
+            <Tile icon="stamp" tone={approved.length ? 'pass' : ''} label="Approved" value={approved.length} />
+            <Tile icon="undo" tone={returned.length ? 'fail' : ''} label="Returned for re-analysis" value={returned.length} />
           </div>
 
           <section className="card">
-            <h2>Waiting for My Review</h2>
+            <div className="card-head"><h2><Glyph name="inbox" size={16} tone={reports.length ? 'lit' : ''} />Waiting for your review</h2></div>
             <ReportTable
               data={reports}
               emptyMessage="Nothing waiting for your review."
@@ -146,12 +142,7 @@ export default function ReviewQueue() {
 
           {/* TODO 2: Complete report history */}
           <section className="card">
-            <h2>Report History</h2>
-
-            <p className="muted">
-              All reports are listed here. Select any report to view its
-              assessment details and review history.
-            </p>
+            <div className="card-head"><h2><Glyph name="clock" size={16} />Report history</h2><span className="note">Every report, newest first. Pick one to open it.</span></div>
 
             <ReportTable
               data={history}

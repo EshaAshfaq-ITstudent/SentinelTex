@@ -62,6 +62,8 @@ function upload(code, kind, file) {
 export const uploadImage = (code, file) => upload(code, 'image', file)
 export const uploadLabReport = (code, file) => upload(code, 'lab-report', file)
 export const analyzeSample = (code) => request(`/samples/${code}/analyze`, { method: 'POST' })
+export const deleteFile = (fileId) => request(`/samples/files/${fileId}`, { method: 'DELETE' })
+export const submitReport = (id) => request(`/reports/${id}/submit`, { method: 'POST' })   // draft -> waiting for AM
 
 // Uploaded files need the login token, so they are fetched as a blob and shown with an object URL
 export async function fileUrl(fileId, annotated = false, ocrPage = false) {
@@ -96,3 +98,10 @@ function qs(params) {
 export const trendOverview = (filters) => request('/trends/overview' + qs(filters))
 export const clauseTrend = (clause, filters) => request(`/trends/clause/${clause}` + qs(filters))
 export const trendSuppliers = () => request('/trends/suppliers')
+
+// ---- Messages between Lab Analyst, AM and DM (one thread per sample) -----
+export const listThreads = () => request('/messages')
+export const getThread = (code) => request(`/samples/${code}/messages`)
+export const sendMessage = (code, text, toUserId = null) =>
+  request(`/samples/${code}/messages`, { method: 'POST', body: { text, to_user_id: toUserId } })
+export const messagePeople = () => request('/messages/people')

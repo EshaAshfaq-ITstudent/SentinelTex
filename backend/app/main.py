@@ -12,11 +12,12 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import PROJECT_DIR
 
-from .database import Base, engine
-from .routers import auth, knowledge, reports, samples, trends
+from .database import Base, add_missing_columns, engine
+from .routers import auth, knowledge, messages, reports, samples, trends
 from .vision.detect import model_status
 
 Base.metadata.create_all(bind=engine)
+add_missing_columns()
 
 app = FastAPI(title="SentinelTex API", version="0.1.0",
               description="Military uniform fabric quality assurance and standards verification (FYP prototype)")
@@ -30,6 +31,7 @@ app.include_router(samples.router)
 app.include_router(reports.router)
 app.include_router(knowledge.router)
 app.include_router(trends.router)
+app.include_router(messages.router)
 
 
 @app.get("/health", tags=["System"])

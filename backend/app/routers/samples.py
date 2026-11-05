@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 
 from ..config import ALLOWED_IMAGE_TYPES, ALLOWED_REPORT_TYPES, MAX_UPLOAD_MB, UPLOAD_DIR
 from ..database import get_db
-from ..models import Role, Sample, SampleFile, User
+from ..models import QualityReport, ReportStatus, Role, Sample, SampleFile, User
+from ..quality import check_and_save, sidecar
 from ..schemas import FileOut, SampleCreate, SampleOut
 from ..security import get_current_user, require_roles
 
@@ -63,6 +64,7 @@ def _save_upload(sample: Sample, upload: UploadFile, kind: str, allowed: set[str
     db.add(record)
     db.commit()
     db.refresh(record)
+    check_and_save(stored, kind)          # blur, darkness and size warnings for the analyst
     return record
 
 
@@ -99,3 +101,20 @@ def download_file(file_id: int, annotated: bool = False, ocr_page: bool = False,
     if not path.exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "File is missing on disk")
     return FileResponse(path)
+
+
+@router.delete("/files/{file_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_file(file_id: int, db: Session = Depends(get_db), user: User = Depends(analyst_only)):
+    """Remove a bad upload (for example a blurry photo) before it is used. A file that a report already sent for
+    review was based on cannot be removed, so every submitted report keeps its evidence."""
+    record = db.get(SampleFile, file_id)
+    if record is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "File not found")
+    submitted = [r for r in record.sample.reports if r.status != ReportStatus.DRAFT]
+    if any(r.created_at >= record.uploaded_at for r in submitted if r.created_at and record.uploaded_at):
+        raise HTTPException(status.HTTP_409_CONFLICT, "This file was used in a report already sent for review, so it is kept")
+    path = Path(record.stored_path)
+    for p in (path, sidecar(path), path.with_name(f"annotated_{path.stem}.jpg"), path.with_name(f"ocrpage_{path.stem}.png")):
+        p.unlink(missing_ok=True)
+    db.delete(record)
+    db.commit()

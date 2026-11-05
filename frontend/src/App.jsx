@@ -11,10 +11,12 @@ import TrendAnalysis from './pages/TrendAnalysis'
 import TestAnalysis from './pages/TestAnalysis'
 import ImageAnalysis from './pages/ImageAnalysis'
 import Home from './pages/Home'
+import AnalystHome from './pages/AnalystHome'
+import Messages from './pages/Messages'
 import Loading from './components/Loading'
 
 function home(role) {
-  return role === 'lab_analyst' ? '/samples' : '/home'
+  return role === 'lab_analyst' ? '/overview' : '/home'
 }
 
 // Only lets the listed roles open a page
@@ -33,6 +35,7 @@ export default function App() {
       <Route path="/login" element={user ? <Navigate to={home(user.role)} replace /> : <Login />} />
       <Route element={<Guard><Layout /></Guard>}>
         {/* Lab Analyst */}
+        <Route path="/overview" element={<Guard roles={['lab_analyst']}><AnalystHome /></Guard>} />
         <Route path="/samples" element={<Guard roles={['lab_analyst']}><Samples /></Guard>} />
         <Route path="/samples/:code" element={<Guard roles={['lab_analyst']}><SampleDetail /></Guard>} />
         {/* Assistant Manager and Deputy Manager dashboards */}
@@ -44,6 +47,7 @@ export default function App() {
         <Route path="/chatbot" element={<Guard roles={['am', 'dm']}><LabChatbot /></Guard>} />
         {/* Everyone */}
         <Route path="/reports/:id" element={<ReportView />} />
+        <Route path="/messages" element={<Messages />} />
       </Route>
       <Route path="*" element={<Navigate to={user ? home(user.role) : '/login'} replace />} />
     </Routes>

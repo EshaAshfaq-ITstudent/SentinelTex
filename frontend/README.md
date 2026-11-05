@@ -66,13 +66,16 @@ npm run desktop
 | `src/pages/Home.jsx` | AM / DM overview: waiting reports, recent decisions, system status | Done |
 | `src/pages/Login.jsx` | Login | Done (example) |
 | `src/pages/Samples.jsx` | Analyst: sample list and new sample | Done (example) |
-| `src/pages/SampleDetail.jsx` | Analyst: upload photo and lab report, run analysis | **Faiza: 2 TODOs** |
-| `src/pages/ReviewQueue.jsx` | AM / DM: reports waiting for review | **Faiza: 2 TODOs** |
-| `src/pages/ReportView.jsx` | Quality Assessment Report, approve or reject | **Faiza: 4 TODOs** |
+| `src/pages/AnalystHome.jsx` | Analyst overview: drafts to send, reports sent back with the reason, progress of every sample, messages | Done |
+| `src/pages/SampleDetail.jsx` | Analyst: upload (quality check, remove a bad file), run analysis, check the draft, send to AM, discussion | Done (Faiza, extended) |
+| `src/pages/Messages.jsx`, `src/components/Thread.jsx` | Messages between analyst, AM and DM, one thread per sample | Done |
+| `src/components/Tile.jsx`, `Splash.jsx` | KPI plate with glowing icon; opening screen | Done |
+| `src/pages/ReviewQueue.jsx` | AM / DM: reports waiting for review | Done (Faiza) |
+| `src/pages/ReportView.jsx` | Quality Assessment Report: draft check and send (analyst), approve or reject (AM, DM), discussion | Done (Faiza, extended) |
 | `src/pages/TestAnalysis.jsx` | AM / DM: OCR and compliance overview | Done (Faiza) |
 | `src/pages/TrendAnalysis.jsx` | AM / DM: trends | Done |
 | `src/pages/LabChatbot.jsx` | AM / DM: chatbot | Done |
-| `src/pages/ComingSoon.jsx` | Placeholder for Image Analysis | Maham |
+| `src/pages/ImageAnalysis.jsx` | AM / DM: defects found in the fabric photos | Done (Maham) |
 
 Every TODO comment says which `api.js` function to call and what to show.
 Copy the pattern from `Samples.jsx`: `useState` keeps the data, `useEffect` loads it, `try/catch` shows errors.

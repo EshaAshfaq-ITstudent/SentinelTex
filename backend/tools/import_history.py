@@ -3,8 +3,9 @@
     python tools\\import_history.py
 
 Reads history\\report_summary.csv and history\\test_history.csv from the documents dataset.
-These records are SYNTHETIC demo history (made for the prototype), so they are stored with
-source = "demo history (synthetic)" and the Trend Analysis page says so. Running it again replaces them.
+These records are a prepared (synthetic) history dataset made for the prototype. They are stored with
+source = "prepared history (synthetic)" and the Trend Analysis page notes where past records come from.
+Running it again replaces them.
 """
 import csv
 import sys
@@ -15,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.database import Base, SessionLocal, engine  # noqa: E402
 from app.models import HistoryReport, HistoryResult  # noqa: E402
 
-SOURCE = "demo history (synthetic)"
+SOURCE = "prepared history (synthetic)"
 DIRS = ["../data/documents/sentineltex_documents_v2/history", "../data/documents/history"]
 
 folder = Path(sys.argv[1]) if len(sys.argv) > 1 else next((Path(d) for d in DIRS if Path(d).is_dir()), None)

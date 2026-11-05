@@ -1,7 +1,8 @@
 """Database tables.
 
 Approval workflow (from the proposal):
-    Lab Analyst runs analysis -> report PENDING_AM
+    Lab Analyst runs analysis -> report DRAFT (the analyst checks what was read; may re-upload and run again)
+    Lab Analyst sends it for review -> PENDING_AM
     AM approves -> PENDING_DM            AM rejects -> RETURNED (re-analysis)
     DM approves -> APPROVED (final)      DM rejects -> RETURNED (re-analysis)
     Lab Analyst re-runs analysis on a RETURNED report -> PENDING_AM again
@@ -26,6 +27,7 @@ class Role(str, enum.Enum):
 
 
 class ReportStatus(str, enum.Enum):
+    DRAFT = "draft"                      # analysed, checked by the analyst before it goes to the AM
     PENDING_AM = "pending_am"
     PENDING_DM = "pending_dm"
     APPROVED = "approved"
@@ -66,6 +68,12 @@ class SampleFile(Base):
 
     sample: Mapped[Sample] = relationship(back_populates="files")
 
+    @property
+    def quality(self) -> dict | None:
+        """Upload quality check result (saved next to the file, see app/quality.py)."""
+        from .quality import load
+        return load(self.stored_path)
+
 
 class QualityReport(Base):
     __tablename__ = "quality_reports"
@@ -97,6 +105,28 @@ class Review(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
     report: Mapped[QualityReport] = relationship(back_populates="reviews")
+
+
+# ---- Messages between the Lab Analyst, AM and DM: one thread per sample ----
+class Message(Base):
+    __tablename__ = "messages"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    sample_id: Mapped[int] = mapped_column(ForeignKey("samples.id"), index=True)
+    sender_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    recipient_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)   # None = everyone on the sample
+    text: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+    sender: Mapped[User] = relationship(foreign_keys=[sender_id])
+    recipient: Mapped[User | None] = relationship(foreign_keys=[recipient_id])
+
+
+class MessageRead(Base):
+    """The last message each user has seen in each thread (for unread counts)."""
+    __tablename__ = "message_reads"
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    sample_id: Mapped[int] = mapped_column(ForeignKey("samples.id"), primary_key=True)
+    last_seen_id: Mapped[int] = mapped_column(Integer, default=0)
 
 
 # ---- Trend Analysis: past laboratory records imported from file (tools/import_history.py) ----

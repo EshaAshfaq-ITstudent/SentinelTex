@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import QualityReport, ReportStatus, Review, Role, User
+from ..models import QualityReport, ReportStatus, Review, Role, User, now_utc
 from ..compliance.checker import assess
 from ..ocr.extract import extract_report, load_rules
 from ..schemas import ReportOut, ReviewIn
@@ -72,6 +72,8 @@ def run_analysis(sample) -> tuple[str, str, dict]:
 @router.post("/samples/{sample_code}/analyze", response_model=ReportOut, status_code=status.HTTP_201_CREATED)
 def analyze_sample(sample_code: str, db: Session = Depends(get_db),
                    user: User = Depends(require_roles(Role.LAB_ANALYST))):
+    """Runs the analysis and saves the result as a DRAFT the analyst checks first. Running it again while the
+    report is still a draft replaces the draft (same version)."""
     sample = get_sample_or_404(db, sample_code)
     if not sample.files:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Upload at least one image or lab report first")
@@ -81,10 +83,29 @@ def analyze_sample(sample_code: str, db: Session = Depends(get_db),
     if latest and latest.status == ReportStatus.APPROVED:
         raise HTTPException(status.HTTP_409_CONFLICT, "This sample already has a final approved report")
     decision, summary, details = run_analysis(sample)
-    report = QualityReport(sample_id=sample.id, version=(latest.version + 1) if latest else 1,
-                           status=ReportStatus.PENDING_AM, decision=decision, summary=summary,
-                           details_json=json.dumps(details))
-    db.add(report)
+    if latest and latest.status == ReportStatus.DRAFT:
+        report = latest
+        report.decision, report.summary, report.details_json = decision, summary, json.dumps(details)
+        report.created_at = now_utc()
+    else:
+        report = QualityReport(sample_id=sample.id, version=(latest.version + 1) if latest else 1,
+                               status=ReportStatus.DRAFT, decision=decision, summary=summary,
+                               details_json=json.dumps(details))
+        db.add(report)
+    db.commit()
+    db.refresh(report)
+    return report
+
+
+@router.post("/reports/{report_id}/submit", response_model=ReportOut)
+def submit_report(report_id: int, db: Session = Depends(get_db), user: User = Depends(require_roles(Role.LAB_ANALYST))):
+    """The analyst has checked the draft: send it to the Assistant Manager."""
+    report = db.get(QualityReport, report_id)
+    if report is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Report not found")
+    if report.status != ReportStatus.DRAFT:
+        raise HTTPException(status.HTTP_409_CONFLICT, f"Report is '{report.status.value}', only a draft can be sent for review")
+    report.status = ReportStatus.PENDING_AM
     db.commit()
     db.refresh(report)
     return report
@@ -95,6 +116,8 @@ def list_reports(status_filter: ReportStatus | None = None, db: Session = Depend
                  user: User = Depends(get_current_user)):
     """AM dashboard: ?status_filter=pending_am   DM dashboard: ?status_filter=pending_dm"""
     query = select(QualityReport).order_by(QualityReport.created_at.desc())
+    if user.role != Role.LAB_ANALYST:              # drafts are the analyst's own work in progress
+        query = query.where(QualityReport.status != ReportStatus.DRAFT)
     if status_filter:
         query = query.where(QualityReport.status == status_filter)
     return db.scalars(query).all()
@@ -103,7 +126,7 @@ def list_reports(status_filter: ReportStatus | None = None, db: Session = Depend
 @router.get("/reports/{report_id}", response_model=ReportOut)
 def get_report(report_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     report = db.get(QualityReport, report_id)
-    if report is None:
+    if report is None or (report.status == ReportStatus.DRAFT and user.role != Role.LAB_ANALYST):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Report not found")
     return report
 

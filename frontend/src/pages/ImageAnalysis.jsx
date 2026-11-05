@@ -4,20 +4,12 @@ import * as api from '../api'
 import DefectOverlay from '../components/DefectOverlay'
 import Loading from '../components/Loading'
 import StatusBadge from '../components/StatusBadge'
+import Tile from '../components/Tile'
+import { Glyph } from '../components/Icon'
 
 // Image Analysis (AM and DM dashboard): what the YOLO model found in the fabric photos of every analysed report.
 // Pick a report to see each photo with its defect boxes and the list of detections.
 // Detection layout and table: Maham Imran. A defect seen only by the model is CHECK MANUALLY for the reviewer.
-
-function Tile({ label, value, sub }) {
-  return (
-    <div className="card" style={{ flex: '1 1 170px', margin: 0 }}>
-      <p className="muted" style={{ marginTop: 0 }}>{label}</p>
-      <h2 style={{ margin: 0 }}>{value}</h2>
-      {sub && <p className="muted" style={{ fontSize: 12, marginBottom: 0 }}>{sub}</p>}
-    </div>
-  )
-}
 
 function Detections({ image }) {
   const boxes = image.boxes || []
@@ -50,7 +42,7 @@ function ReportImages({ row }) {
   return (
     <section className="card">
       <div className="row" style={{ justifyContent: 'space-between' }}>
-        <h2 style={{ margin: 0 }}>{row.report.sample_code} v{row.report.version}: fabric photos</h2>
+        <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 10 }}><Glyph name="image" size={16} tone="lit" /><span className="code">{row.report.sample_code}</span> v{row.report.version}: fabric photos</h2>
         <Link to={`/reports/${row.report.id}`}>Open full report</Link>
       </div>
       {ia.skipped ? <p className="error">{ia.skipped}</p> : (ia.images || []).map((img, i) => {
@@ -116,25 +108,28 @@ export default function ImageAnalysis() {
 
   return (
     <>
-      <h1>Image Analysis</h1>
-      <p className="muted">Defects the YOLO model found in the fabric photos of each analysed sample. A defect seen only by the model is marked CHECK MANUALLY: a reviewer confirms it.</p>
+      <div className="page-head"><div>
+        <h1>Image Analysis</h1>
+        <p className="muted">Defects the YOLO model found in the fabric photos of each analysed sample. A defect seen only by the model is marked CHECK MANUALLY, so a reviewer confirms it.</p>
+      </div></div>
       {error && <div className="error">{error}</div>}
 
-      <div className="row" style={{ alignItems: 'stretch', marginBottom: 16 }}>
-        <Tile label="Photos checked" value={stats.photos} />
-        <Tile label="Photos with a defect found" value={stats.withDefects} sub={stats.photos ? `${Math.round(stats.withDefects / stats.photos * 100)}% of photos` : ''} />
-        <Tile label="Most common defect" value={stats.top ? stats.top[0] : 'none'} sub={stats.top ? `${stats.top[1]} detections` : ''} />
-        <Tile label="Model threshold" value={stats.threshold != null ? `${Math.round(stats.threshold * 100)}%` : 'n/a'} sub="minimum confidence for a box" />
+      <div className="tiles">
+        <Tile icon="image" label="Photos checked" value={stats.photos} />
+        <Tile accent icon="scan" label="Photos with a defect found" value={stats.withDefects} sub={stats.photos ? `${Math.round(stats.withDefects / stats.photos * 100)}% of photos` : ''} />
+        <Tile icon="alert" tone={stats.top ? 'check' : ''} small label="Most common defect" value={stats.top ? stats.top[0] : 'None'} sub={stats.top ? `${stats.top[1]} detections` : ''} />
+        <Tile icon="gauge" label="Model threshold" value={stats.threshold != null ? `${Math.round(stats.threshold * 100)}%` : 'n/a'} sub="minimum confidence for a box" />
       </div>
 
       <div className="card" style={{ overflowX: 'auto' }}>
+        <div className="card-head"><h2><Glyph name="layers" size={16} />Analysed samples</h2><span className="note">Pick a sample to see its photos with the defect boxes</span></div>
         <table>
           <thead><tr><th>Sample</th><th>Version</th><th>Photos</th><th>Defects found</th><th>CHECK MANUALLY</th><th>Decision</th></tr></thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.report.id} className="click" onClick={() => setPicked(r.report.id)}
-                  style={picked === r.report.id ? { background: 'var(--panel-2)' } : undefined}>
-                <td><b>{r.report.sample_code}</b></td>
+              <tr key={r.report.id} className={`click${picked === r.report.id ? ' picked' : ''}`} onClick={() => setPicked(r.report.id)}
+                 >
+                <td><span className="code">{r.report.sample_code}</span></td>
                 <td>v{r.report.version}</td>
                 <td>{r.ia.skipped ? <span className="muted">model not available</span> : r.images.length}</td>
                 <td>{Object.entries(r.counts).map(([k, v]) => `${v} ${k}`).join(', ') || <span className="muted">none</span>}</td>
@@ -145,7 +140,6 @@ export default function ImageAnalysis() {
             {!rows.length && <tr><td colSpan={6} className="muted">No fabric photos analysed yet. The analyst uploads photos on a sample and runs analysis.</td></tr>}
           </tbody>
         </table>
-        {rows.length > 0 && !pickedRow && <p className="muted" style={{ fontSize: 13 }}>Click a row to see the photos with their defect boxes.</p>}
       </div>
 
       {pickedRow && <ReportImages row={pickedRow} />}

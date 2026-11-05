@@ -1,4 +1,4 @@
-"""Create the three demo users (one per role). Run once from the `backend` folder:
+"""Create the three user accounts (one per role). Run once from the `backend` folder:
 
     python seed_users.py
 
@@ -13,9 +13,9 @@ from app.models import Role, User
 from app.security import hash_password
 
 USERS = [
-    ("analyst", "Lab Analyst (demo)", Role.LAB_ANALYST),
-    ("am", "Assistant Manager (demo)", Role.AM),
-    ("dm", "Deputy Manager (demo)", Role.DM),
+    ("analyst", "Lab Analyst", Role.LAB_ANALYST),
+    ("am", "Assistant Manager", Role.AM),
+    ("dm", "Deputy Manager", Role.DM),
 ]
 
 
@@ -23,15 +23,18 @@ def main():
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
-        for username, full_name, role in USERS:
+        for username, default_name, role in USERS:
+            user = db.scalar(select(User).where(User.username == username))
+            current = user.full_name if user and "(demo)" not in user.full_name else default_name
+            full_name = input(f"Full name shown for '{username}' [{current}]: ").strip() or current
             while True:
                 pw = getpass(f"Password for '{username}' ({role.value}), at least 8 characters: ")
                 if len(pw) >= 8:
                     break
                 print("  Too short, try again.")
-            user = db.scalar(select(User).where(User.username == username))
             if user:
                 user.password_hash = hash_password(pw)
+                user.full_name = full_name
                 print(f"  Updated {username}")
             else:
                 db.add(User(username=username, full_name=full_name, role=role, password_hash=hash_password(pw)))

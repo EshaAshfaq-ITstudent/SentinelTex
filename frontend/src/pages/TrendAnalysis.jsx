@@ -159,11 +159,11 @@ export default function TrendAnalysis() {
   return (
     <>
       <h1>Trend Analysis</h1>
-      {data?.note && <div className="card" style={{ borderColor: 'var(--check)' }}>⚠ {data.note}</div>}
+
 
       <div className="row" style={{ marginBottom: 16 }}>
         <select value={filters.source} onChange={set('source')}>
-          <option value="all">All records</option><option value="history">Imported history only</option>
+          <option value="all">All records</option><option value="history">Past records only</option>
           <option value="system">Reports analysed in SentinelTex</option>
         </select>
         <select value={filters.supplier} onChange={set('supplier')}>
@@ -221,6 +221,7 @@ export default function TrendAnalysis() {
               </tbody>
             </table>
           </div>
+          {data.note && <p className="note">{data.note}</p>}
         </>
       )}
     </>

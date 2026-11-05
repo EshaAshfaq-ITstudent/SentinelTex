@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import * as api from '../api'
+import { Glyph } from './Icon'
 
 // Explanation of the decision with the specification clauses it rests on.
 // "template" = fixed sentences made without the LLM; "llm" = written by the local LLM, checked against the clauses.
@@ -18,8 +19,8 @@ export default function ExplanationPanel({ report, details, onUpdated }) {
   const g = ex?.grounding
   return (
     <section className="card">
-      <h2 style={{ marginTop: 0 }}>Explanation</h2>
-      {ex ? <p style={{ whiteSpace: 'pre-wrap' }}>{ex.text}</p> : <p className="muted">No explanation yet.</p>}
+      <div className="card-head"><h2><Glyph name="spark" tone={ex?.method === 'llm' ? 'lit' : ''} size={16} />Explanation</h2></div>
+      {ex ? <p className="explain">{ex.text}</p> : <p className="muted">No explanation yet. The local LLM can write one from the specification clauses.</p>}
       {ex && (
         <p className="muted" style={{ fontSize: 13 }}>
           {ex.method === 'llm' ? `Written by the local LLM (${ex.model}).` : 'Made without the LLM from the checker results.'}

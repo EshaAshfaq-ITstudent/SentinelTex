@@ -1,7 +1,7 @@
 """Trend Analysis: quality over time, by clause and by supplier.
 
 Two kinds of records are combined, and every answer says how many came from each:
-* past laboratory records imported with tools/import_history.py (in this prototype: synthetic demo history)
+* past laboratory records imported with tools/import_history.py (in this prototype: a prepared history dataset, shown as "Past records")
 * reports analysed in SentinelTex itself (latest version of each sample)
 """
 import json
@@ -13,19 +13,20 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import HistoryReport, HistoryResult, QualityReport, Role, User
+from ..models import HistoryReport, HistoryResult, QualityReport, ReportStatus, Role, User
 from ..ocr.extract import load_rules
 from ..security import require_roles
 
 router = APIRouter(prefix="/trends", tags=["Trend Analysis"])
 SYSTEM = "SentinelTex analyses"
+HISTORY = "Past records"        # display name for imported records, whatever source text they were stored with
 NEAR = 0.05           # a passing value within 5 % of its limit counts as "close to the limit"
 
 
 def _system_reports(db: Session):
     """Latest analysed version of each sample, as (date, sample, decision, checks)."""
     latest = {}
-    for r in db.scalars(select(QualityReport)):
+    for r in db.scalars(select(QualityReport).where(QualityReport.status != ReportStatus.DRAFT)):   # drafts are not results yet
         if r.sample_id not in latest or r.version > latest[r.sample_id].version:
             latest[r.sample_id] = r
     for r in latest.values():
@@ -44,12 +45,12 @@ def _collect(db, source, supplier, start, end):
         for h in db.scalars(select(HistoryReport)):
             if (supplier is None or h.supplier == supplier) and _in_range(h.report_date, start, end):
                 reports.append({"date": h.report_date, "supplier": h.supplier, "decision": h.decision,
-                                "failed": h.failed_clauses.split(), "report_no": h.report_no, "source": h.source})
+                                "failed": h.failed_clauses.split(), "report_no": h.report_no, "source": HISTORY})
         for t in db.scalars(select(HistoryResult)):
             if (supplier is None or t.supplier == supplier) and _in_range(t.report_date, start, end):
                 results.append({"date": t.report_date, "supplier": t.supplier, "clause": t.clause, "property": t.property,
                                 "direction": t.direction, "value": t.value, "unit": t.unit, "compliant": t.compliant,
-                                "report_no": t.report_no, "source": t.source})
+                                "report_no": t.report_no, "source": HISTORY})
     if source in ("all", "system") and supplier in (None, "not recorded"):
         for r, checks in _system_reports(db):
             d = r.created_at.replace(tzinfo=None)
@@ -109,7 +110,7 @@ def overview(source: str = Query("all", pattern="^(all|history|system)$"), suppl
             "decisions": dict(Counter(r["decision"] for r in reports)),
             "accept_rate": round(sum(r["decision"] == "ACCEPT" for r in reports) / total, 3) if total else None,
             "monthly": monthly, "clause_failures": clause_failures, "suppliers": suppliers,
-            "note": ("Imported records are synthetic demo history made for this prototype, not real laboratory data."
+            "note": ("Past records come from a prepared history dataset used to evaluate the prototype."
                      if any(s != SYSTEM for s in by_source) else "")}
 
 

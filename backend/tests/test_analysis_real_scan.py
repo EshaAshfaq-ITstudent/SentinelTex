@@ -28,7 +28,10 @@ photo = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abs
 if os.path.exists(photo):                      # fabric photo of the same sample, for Image Analysis
     with open(photo, "rb") as f:
         assert c.post("/samples/ST-0080/image", files={"file": ("IMG_7156.jpg", f, "image/jpeg")}, headers=H).status_code == 201
+for f in c.get("/samples/ST-0080", headers=H).json()["files"]:   # upload quality check: real files pass it
+    assert f["quality"]["ok"], (f["original_name"], f["quality"])
 rep = c.post("/samples/ST-0080/analyze", headers=H).json()
+assert rep["status"] == "draft"
 d = json.loads(rep["details_json"])
 print("Decision:", rep["decision"]); print("Summary:", rep["summary"])
 ta = d.get("test_analysis") or {}

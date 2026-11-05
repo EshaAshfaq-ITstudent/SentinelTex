@@ -17,7 +17,8 @@ export default function DecisionTimeline({ report }) {
   const am = [...reviews].reverse().find((r) => r.role === 'am')
   const dm = [...reviews].reverse().find((r) => r.role === 'dm')
   const steps = [
-    { label: 'Analysed', sub: new Date(report.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }), state: 'done' },
+    { label: report.status === 'draft' ? 'Analysed (draft)' : 'Analysed and sent', sub: new Date(report.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' }),
+      state: report.status === 'draft' ? 'current' : 'done' },
     { label: 'Assistant Manager', review: am,
       state: am ? (am.approved ? 'done' : 'rejected') : report.status === 'pending_am' ? 'current' : 'waiting' },
     { label: 'Deputy Manager', review: dm,
@@ -30,7 +31,7 @@ export default function DecisionTimeline({ report }) {
           <div className="tl-dot">{i + 1}</div>
           <div className="tl-body">
             <div className="tl-label">{s.label}</div>
-            {s.review ? <Stamp review={s.review} />
+            {s.review ? <><Stamp review={s.review} />{s.review.comment && <div className="stamp-note">“{s.review.comment}”</div>}</>
               : <div className="muted tl-sub">{s.sub || (s.state === 'current' ? 'Waiting for review' : s.state === 'waiting' ? 'Not yet' : '')}</div>}
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as api from '../api'
+import { Glyph } from '../components/Icon'
 
 // Lab Chatbot: answers only from the specification in the knowledge base, with clause references.
 const EXAMPLES = ['What is the tear force requirement in the weft direction?', 'Which test method is used for colour fastness to rubbing?',
@@ -30,20 +31,22 @@ export default function LabChatbot() {
 
   return (
     <>
-      <h1>Lab Chatbot</h1>
-      <p className="muted">
-        Answers come only from specification STS/UC/01 and name the clause. If the specification does not cover a question, it says so.
-        {status && <> · {status.chunks} clauses indexed · search: {status.embedding} · LLM {status.llm.available ? 'ready' : 'not running'}</>}
-      </p>
+      <div className="page-head"><div>
+        <h1>Lab Chatbot</h1>
+        <p className="muted">Answers come only from specification STS/UC/01 and name the clause. If the specification does not cover a question, it says so.</p>
+      </div>
+      {status && <div className="row note"><span className={`status-dot${status.llm.available ? '' : ' warn'}`} />{status.chunks} clauses indexed, LLM {status.llm.available ? 'ready' : 'not running'}</div>}
+      </div>
 
       <div className="card" style={{ minHeight: 280 }}>
-        {!messages.length && (
-          <div className="row">{EXAMPLES.map((e) => <button key={e} className="ghost" onClick={() => ask(e)}>{e}</button>)}</div>
+        {!messages.length && (<>
+          <div className="empty" style={{ border: 0, padding: '4px 0 16px' }}><Glyph name="chat" tone="lit" /><div><b>Ask about the specification.</b>Try one of these:</div></div>
+          <div className="row">{EXAMPLES.map((e) => <button key={e} className="chip" onClick={() => ask(e)}>{e}</button>)}</div></>
         )}
         {messages.map((m, i) => m.role === 'user'
-          ? <p key={i} style={{ textAlign: 'right' }}><span className="badge neutral" style={{ fontSize: 14, whiteSpace: 'normal' }}>{m.text}</span></p>
+          ? <div key={i} className="bubble me" style={{ margin: '12px 0 12px auto', width: 'fit-content' }}>{m.text}</div>
           : (
-            <div key={i} style={{ borderLeft: '3px solid var(--olive)', paddingLeft: 12, margin: '12px 0' }}>
+            <div key={i} className="bubble" style={{ margin: '12px 0', borderLeft: '3px solid var(--brass)' }}>
               <p style={{ whiteSpace: 'pre-wrap', margin: '0 0 6px' }}>{m.answer}</p>
               {m.grounding && !m.grounding.grounded && (
                 <p style={{ color: 'var(--check)', fontSize: 13 }}>
@@ -60,7 +63,7 @@ export default function LabChatbot() {
               )}
             </div>
           ))}
-        {busy && <p className="muted">Thinking… (the local LLM can take up to a minute)</p>}
+        {busy && <div className="loading"><span className="spinner" />Searching the specification and writing the answer. The local LLM can take up to a minute.</div>}
         <div ref={end} />
       </div>
 

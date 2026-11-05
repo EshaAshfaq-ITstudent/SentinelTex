@@ -8,6 +8,9 @@ import DecisionTimeline from '../components/DecisionTimeline'
 import EvidenceModal from '../components/EvidenceModal'
 import DefectOverlay from '../components/DefectOverlay'
 import Loading from '../components/Loading'
+import Tile from '../components/Tile'
+import Thread from '../components/Thread'
+import { Glyph } from '../components/Icon'
 
 // Quality Assessment Report. Loading, review rules and approval logic: Faiza Altaf.
 // Layout, decision timeline, evidence view and defect overlay: interface redesign.
@@ -83,7 +86,7 @@ export default function ReportView() {
         <div>
           <div className="eyebrow">Quality Assessment Report</div>
           <h1>{report.sample_code} <span className="muted" style={{ fontWeight: 400 }}>· version {report.version}</span></h1>
-          <p className="muted">Specification {sample?.specification || 'STS/UC/01'} · analysed {new Date(report.created_at).toLocaleString()}</p>
+          <p className="muted">Checked against specification {sample?.specification || 'STS/UC/01'}, analysed {new Date(report.created_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</p>
         </div>
         <div className="row">
           <StatusBadge value={report.decision} big />
@@ -92,23 +95,47 @@ export default function ReportView() {
 
       {error && <div className="error">{error}</div>}
 
+      {report.status === 'draft' && user?.role === 'lab_analyst' && (
+        <section className="card alert">
+          <div className="card-head">
+            <h2><Glyph name="scan" size={16} tone="check" />Draft: check it against the paper report</h2>
+            <button disabled={reviewing} onClick={async () => {
+              setReviewing(true); setError('')
+              try { await api.submitReport(report.id); await load() } catch (e) { setError(e.message) } finally { setReviewing(false) }
+            }}>{reviewing ? 'Sending…' : 'Send to the Assistant Manager'}</button>
+          </div>
+          <p className="muted" style={{ margin: 0 }}>Only you can see this draft. Click underlined values to compare them with the scan. If the scan was read badly, go back to the sample, replace the file and run the analysis again.</p>
+        </section>
+      )}
+
       <section className="card">
-        <h2>Approval</h2>
+        <div className="card-head"><h2><Glyph name="stamp" size={16} tone={report.status === 'approved' ? 'pass' : ''} />Approval</h2>
+          <StatusBadge value={report.status} /></div>
         <DecisionTimeline report={report} />
       </section>
 
+      {!d.compliance ? (
+        <section className="card alert">
+          <div className="empty" style={{ border: 0, padding: 0 }}>
+            <Glyph name="alert" tone="check" />
+            <div><b>No analysis results are stored in this report.</b>
+              It is an old test record made before the analysis modules were connected, so there is nothing to show or explain.
+              Reports made now always include the results. Start with a fresh database so records like this do not appear.</div>
+          </div>
+        </section>
+      ) : <>
       <div className="tiles">
-        <div className="tile"><div className="tile-label">Clauses passed</div><div className="tile-value" style={{ color: 'var(--pass)' }}>{counts.PASS || 0}</div></div>
-        <div className="tile"><div className="tile-label">Clauses failed</div><div className="tile-value" style={{ color: '#ee7a76' }}>{counts.FAIL || 0}</div><div className="tile-sub">{(d.compliance?.failed_clauses || []).join(', ') || 'none'}</div></div>
-        <div className="tile"><div className="tile-label">Check manually / not reported</div><div className="tile-value" style={{ color: 'var(--check)' }}>{(counts['CHECK MANUALLY'] || 0) + (counts['NOT REPORTED'] || 0)}</div><div className="tile-sub">a person decides these</div></div>
+        <Tile icon="check" tone="pass" label="Clauses passed" value={counts.PASS || 0} sub={`of ${checks.length} checked`} />
+        <Tile icon="x" tone={counts.FAIL ? 'fail' : ''} label="Clauses failed" value={counts.FAIL || 0} sub={(d.compliance?.failed_clauses || []).join(', ') || 'none'} />
+        <Tile icon="user" tone={(counts['CHECK MANUALLY'] || 0) + (counts['NOT REPORTED'] || 0) ? 'check' : ''} label="Need a person to decide"
+              value={(counts['CHECK MANUALLY'] || 0) + (counts['NOT REPORTED'] || 0)} sub="check manually or not reported" />
       </div>
 
       <ExplanationPanel report={report} details={d} />
-
       <section className="card">
-        <div className="row" style={{ justifyContent: 'space-between' }}>
-          <h2 style={{ margin: 0 }}>Compliance assessment</h2>
-          {labFile && <span className="muted" style={{ fontSize: 13 }}>Click an underlined value to see where it was read on the scan</span>}
+        <div className="card-head">
+          <h2><Glyph name="test" size={16} />Compliance assessment</h2>
+          {labFile && <span className="note">Click an underlined value to see where it was read on the scan</span>}
         </div>
         {ta.error && <p className="error">{ta.error}</p>}
         {checks.length === 0 ? <p className="muted">No compliance checks available.</p> : (
@@ -121,7 +148,7 @@ export default function ReportView() {
                   const value = c.value ?? 'Not reported'
                   return (
                     <tr key={`${c.clause}-${i}`}>
-                      <td><b>{c.clause}</b></td>
+                      <td className="code">{c.clause}</td>
                       <td>{c.property}{c.direction && <div className="muted" style={{ fontSize: 13 }}>{c.direction}</div>}</td>
                       <td>{c.requirement}{c.unit && c.unit !== 'count' ? ` ${c.unit}` : ''}</td>
                       <td>
@@ -142,7 +169,7 @@ export default function ReportView() {
       </section>
 
       <section className="card">
-        <h2>Fabric photos and detected defects</h2>
+        <div className="card-head"><h2><Glyph name="image" size={16} />Fabric photos and detected defects</h2></div>
         {ia.skipped ? <p className="muted">{ia.skipped}</p>
           : !(ia.images || []).length ? <p className="muted">No fabric photos were analysed for this report.</p>
           : <div className="grid-2">
@@ -161,9 +188,11 @@ export default function ReportView() {
         {(ia.images || []).length > 0 && <p className="muted" style={{ fontSize: 13 }}>Defects seen only by the model are marked CHECK MANUALLY above: a reviewer confirms them by looking at the photo.</p>}
       </section>
 
+      </>}
+
       {canReview && (
-        <section className="card" style={{ borderColor: 'var(--check)' }}>
-          <h2>Your review</h2>
+        <section className="card alert">
+          <div className="card-head"><h2><Glyph name="stamp" tone="check" size={16} />Your review</h2></div>
           <p className="muted" style={{ marginTop: 0 }}>
             {user.role === 'am' ? 'After your approval the report goes to the Deputy Manager.' : 'Your approval is the final sign off.'} Rejecting sends it back to the analyst for re-analysis.
           </p>
@@ -179,6 +208,8 @@ export default function ReportView() {
           </div>
         </section>
       )}
+
+      <Thread code={report.sample_code} />
 
       {evidence && labFile && (
         <EvidenceModal fileId={labFile.id} check={evidence} pageSize={ta.page_size} onClose={() => setEvidence(null)} />

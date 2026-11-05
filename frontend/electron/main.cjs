@@ -61,27 +61,28 @@ function stopBackend() {
 }
 
 function message(title, text) {
-  const html = `<body style="margin:0;height:100vh;display:grid;place-items:center;background:#1e2420;color:#e9ecdf;
+  const html = `<body style="margin:0;height:100vh;display:grid;place-items:center;background:#11160f;color:#ebe8d8;
     font-family:Segoe UI,system-ui,sans-serif"><div style="text-align:center;max-width:520px;padding:16px">
-    <div style="font-weight:700;letter-spacing:1px;font-size:22px">SENTINEL<span style="color:#c8b88a">TEX</span></div>
+    <div style="font-weight:700;letter-spacing:1px;font-size:22px">SENTINEL<span style="color:#d6b25e">TEX</span></div>
     <p style="color:#a3ab98;white-space:pre-wrap">${title}</p><p style="font-size:13px;color:#a3ab98;white-space:pre-wrap">${text}</p></div></body>`
   win.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html))
 }
 
 async function boot() {
   win = new BrowserWindow({
-    width: 1360, height: 860, minWidth: 1000, minHeight: 640, backgroundColor: '#1e2420', title: 'SentinelTex',
+    width: 1360, height: 860, minWidth: 1000, minHeight: 640, backgroundColor: '#11160f', title: 'SentinelTex',
     icon: path.join(__dirname, 'icon.png'), autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true },
   })
   // Air gapped: the window may only show the local app. Any other link is blocked.
-  const local = (url) => url.startsWith(API) || url.startsWith('http://localhost:5173') || url.startsWith('data:')
+  const local = (url) => url.startsWith(API) || url.startsWith('http://localhost:5173') || url.startsWith('data:') || url.startsWith('file:')
   win.webContents.on('will-navigate', (e, url) => { if (!local(url)) e.preventDefault() })
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
 
   if (DEV) { win.loadURL('http://localhost:5173'); return }
 
-  message('Starting…', 'Loading the local analysis services. This can take up to a minute the first time.')
+  win.loadFile(path.join(__dirname, 'splash.html'))                // opening screen while the backend starts
+  const shownAt = Date.now()
   try {
     if (!(await healthy())) startBackend()                         // reuse a backend that is already running
     if (!(await waitForBackend(120))) {
@@ -92,6 +93,7 @@ async function boot() {
       message('The interface has not been built yet.', 'In the frontend folder run:  npm run build\nthen restart the app.')
       return
     }
+    await new Promise((r) => setTimeout(r, Math.max(0, 2600 - (Date.now() - shownAt))))   // let the splash finish
     win.loadURL(`${API}/`)
   } catch (err) {
     message('SentinelTex could not start.', err.message)

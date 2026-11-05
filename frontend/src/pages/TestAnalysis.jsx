@@ -1,176 +1,159 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import * as api from '../api'
+import Loading from '../components/Loading'
+import StatusBadge from '../components/StatusBadge'
+import Tile from '../components/Tile'
+import ExplanationPanel from '../components/ExplanationPanel'
+import EvidenceModal from '../components/EvidenceModal'
+import { Glyph } from '../components/Icon'
 
-export default function TestAnalysis() {
-  const navigate = useNavigate()
-  const [reports, setReports] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+// Test Analysis (AM and DM dashboard): what the OCR read from each lab report and how every value compares
+// with its clause. Pick a report to see its values, the scanned line behind each one, and the explanation.
+// Summary figures and report table: Faiza Altaf. Detail panel with evidence and explanation: interface redesign.
 
+function ReportDetail({ row }) {
+  const [files, setFiles] = useState(null)
+  const [evidence, setEvidence] = useState(null)
   useEffect(() => {
-    let active = true
+    setFiles(null)
+    api.getSample(row.report.sample_code).then((s) => setFiles(s.files)).catch(() => setFiles([]))
+  }, [row.report.id])
 
-    async function loadReports() {
-      try {
-        setLoading(true)
-        setError('')
-        const data = await api.listReports()
-
-        if (active) {
-          setReports(Array.isArray(data) ? data : [])
-        }
-      } catch (err) {
-        if (active) {
-          setError(err.message || 'Could not load test analysis reports.')
-        }
-      } finally {
-        if (active) setLoading(false)
-      }
-    }
-
-    loadReports()
-    return () => { active = false }
-  }, [])
-
-  const rows = useMemo(() => reports.map((report) => {
-    const details = api.reportDetails(report)
-    const analysis = details.test_analysis || {}
-    const checks = details.compliance?.checks || []
-    const results = analysis.results || []
-
-    // Only the lab report's own values belong here (image analysis findings are on the Image Analysis page)
-    const labChecks = checks.filter((c) => c.source === 'lab report')
-    // Values the OCR found on the page, and how many of them it read clearly (not flagged CHECK MANUALLY)
-    const ocrResults = results.filter((r) => r.found)
-    const valuesRead = ocrResults.filter(
-      (r) => r.status === 'ok' && r.value !== null && r.value !== undefined
-    ).length
-
-    return {
-      report,
-      analysis,
-      checks,
-      ocrResults,
-      valuesRead,
-      manualCount: labChecks.filter((c) => c.result === 'CHECK MANUALLY').length,
-      failCount: labChecks.filter((c) => c.result === 'FAIL').length,
-      decision: details.compliance?.decision || report.decision || 'Pending',
-    }
-  }), [reports])
-
-  const stats = useMemo(() => {
-    const totalLabReports = rows.filter(
-      (r) => r.analysis.file || r.analysis.results || r.analysis.error
-    ).length
-
-    const totalValues = rows.reduce((n, r) => n + r.ocrResults.length, 0)
-    const readValues = rows.reduce((n, r) => n + r.valuesRead, 0)
-
-    const failedClauses = {}
-    rows.forEach((row) => {
-      row.checks.filter((c) => c.result === 'FAIL' && c.source === 'lab report').forEach((c) => {
-        failedClauses[c.clause] = (failedClauses[c.clause] || 0) + 1
-      })
-    })
-
-    const mostFailed = Object.entries(failedClauses)
-      .sort((a, b) => b[1] - a[1])[0]
-
-    return {
-      totalLabReports,
-      percentage: totalValues ? Math.round(readValues / totalValues * 100) : 0,
-      mostFailed: mostFailed
-        ? `${mostFailed[0]} (${mostFailed[1]} ${mostFailed[1] === 1 ? 'failure' : 'failures'})`
-        : 'No failed clauses',
-    }
-  }, [rows])
-
-  function decisionClass(decision) {
-    const value = String(decision).toUpperCase()
-    if (value === 'ACCEPT') return 'pass'
-    if (value === 'REJECT') return 'fail'
-    if (value === 'NOT VERIFIABLE') return 'check'
-    return 'neutral'
-  }
-
-  if (loading) return <div className="pad muted">Loading test analysis...</div>
+  const ta = row.analysis
+  const labFile = (files || []).find((f) => f.kind === 'lab_report' && f.original_name === ta.file)
+  const boxFor = (clause) => (ta.results || []).find((r) => r.clause === clause)?.box
 
   return (
     <>
-      <h1>Test Analysis</h1>
-      <p className="muted">
-        Laboratory report OCR results and compliance verification overview.
-      </p>
+      <section className="card">
+        <div className="card-head">
+          <h2><Glyph name="file" size={16} tone="lit" /><span className="code">{row.report.sample_code}</span> v{row.report.version}: lab report values</h2>
+          <div className="row"><StatusBadge value={row.decision} /><Link to={`/reports/${row.report.id}`}>Open full report</Link></div>
+        </div>
+        {ta.error ? <p className="error">{ta.error}</p> : (
+          <>
+            <p className="note" style={{ marginTop: 0 }}>Read from <span className="code">{ta.file}</span>. Click an underlined value to see the line on the scan it came from.</p>
+            <div style={{ overflowX: 'auto' }}>
+              <table>
+                <thead><tr><th>Clause</th><th>Test</th><th>Requirement</th><th>Value read</th><th>Result</th></tr></thead>
+                <tbody>
+                  {row.labChecks.map((c, i) => {
+                    const box = boxFor(c.clause)
+                    const unit = c.unit && c.unit !== 'count' ? ` ${c.unit}` : ''
+                    const value = c.value ?? 'Not reported'
+                    return (
+                      <tr key={`${c.clause}-${i}`}>
+                        <td className="code">{c.clause}</td>
+                        <td>{c.property}</td>
+                        <td>{c.requirement}{unit}</td>
+                        <td>{box && labFile
+                          ? <button className="value-link" onClick={() => setEvidence({ ...c, box })}>{value}{c.value != null ? unit : ''}</button>
+                          : <span className="num">{value}{c.value != null ? unit : ''}</span>}</td>
+                        <td><StatusBadge value={c.result} /></td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+      </section>
+      <ExplanationPanel key={row.report.id} report={row.report} details={row.details} />
+      {evidence && labFile && <EvidenceModal fileId={labFile.id} check={evidence} pageSize={ta.page_size} onClose={() => setEvidence(null)} />}
+    </>
+  )
+}
 
+export default function TestAnalysis() {
+  const [reports, setReports] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [picked, setPicked] = useState(null)
+
+  useEffect(() => {
+    api.listReports().then((d) => setReports(Array.isArray(d) ? d : []))
+      .catch((e) => setError(e.message || 'Could not load test analysis reports.'))
+      .finally(() => setLoading(false))
+  }, [])
+
+  // Only reports that have a lab report result belong here
+  const rows = useMemo(() => reports.map((report) => {
+    const details = api.reportDetails(report)
+    const analysis = details.test_analysis
+    if (!analysis) return null
+    const checks = details.compliance?.checks || []
+    const labChecks = checks.filter((c) => c.source === 'lab report')
+    const ocrResults = (analysis.results || []).filter((r) => r.found)
+    const valuesRead = ocrResults.filter((r) => r.status === 'ok' && r.value !== null && r.value !== undefined).length
+    return {
+      report, details, analysis, labChecks, ocrResults, valuesRead,
+      manualCount: labChecks.filter((c) => c.result === 'CHECK MANUALLY').length,
+      failCount: labChecks.filter((c) => c.result === 'FAIL').length,
+      decision: details.compliance?.decision || report.decision,
+    }
+  }).filter(Boolean), [reports])
+
+  const stats = useMemo(() => {
+    const totalValues = rows.reduce((n, r) => n + r.ocrResults.length, 0)
+    const readValues = rows.reduce((n, r) => n + r.valuesRead, 0)
+    const failed = {}
+    rows.forEach((row) => row.labChecks.filter((c) => c.result === 'FAIL').forEach((c) => { failed[c.clause] = (failed[c.clause] || 0) + 1 }))
+    const top = Object.entries(failed).sort((a, b) => b[1] - a[1])[0]
+    return {
+      reports: rows.length,
+      percentage: totalValues ? Math.round(readValues / totalValues * 100) : 0,
+      manual: rows.reduce((n, r) => n + r.manualCount, 0),
+      top,
+    }
+  }, [rows])
+
+  if (loading) return <Loading text="Loading test analysis…" />
+  const pickedRow = rows.find((r) => r.report.id === picked)
+
+  return (
+    <>
+      <div className="page-head">
+        <div>
+          <h1>Test Analysis</h1>
+          <p className="muted">Values read from each lab report scan and how they compare with specification STS/UC/01. Unclear values are flagged for a person to check, never guessed.</p>
+        </div>
+      </div>
       {error && <p className="error">{error}</p>}
 
-      <div className="row" style={{ alignItems: 'stretch', marginTop: 20 }}>
-        <div className="card" style={{ flex: 1, minWidth: 180 }}>
-          <p className="muted">Total Lab Reports</p>
-          <h2>{stats.totalLabReports}</h2>
-        </div>
-
-        <div className="card" style={{ flex: 1, minWidth: 180 }}>
-          <p className="muted">OCR values read clearly</p>
-          <h2>{stats.percentage}%</h2>
-          <p className="muted" style={{ fontSize: 12, margin: 0 }}>not flagged CHECK MANUALLY (accuracy against the answer keys is in the results document)</p>
-        </div>
-
-        <div className="card" style={{ flex: 1, minWidth: 180 }}>
-          <p className="muted">Most Failed Clause</p>
-          <h2 style={{ fontSize: 16 }}>{stats.mostFailed}</h2>
-        </div>
+      <div className="tiles">
+        <Tile icon="file" label="Lab reports read" value={stats.reports} />
+        <Tile accent icon="scan" label="Values read clearly" value={`${stats.percentage}%`} sub="not flagged for checking" />
+        <Tile icon="user" tone={stats.manual ? 'check' : ''} label="Values to check by hand" value={stats.manual} sub="across all reports" />
+        <Tile icon="alert" tone={stats.top ? 'fail' : ''} small label="Most failed clause" value={stats.top ? stats.top[0] : 'None'} sub={stats.top ? `${stats.top[1]} ${stats.top[1] === 1 ? 'failure' : 'failures'}` : 'no failures so far'} />
       </div>
 
-      <h2>Laboratory Reports</h2>
+      <section className="card">
+        <div className="card-head"><h2><Glyph name="layers" size={16} />Laboratory reports</h2><span className="note">Pick a report to see its values and explanation</span></div>
+        <div style={{ overflowX: 'auto' }}>
+          <table>
+            <thead><tr><th>Sample</th><th>Lab report file</th><th>Values read</th><th>Check by hand</th><th>Failed</th><th>Decision</th></tr></thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.report.id} className={`click${picked === row.report.id ? ' picked' : ''}`} onClick={() => setPicked(row.report.id)}>
+                  <td><span className="code">{row.report.sample_code}</span> <span className="muted">v{row.report.version}</span></td>
+                  <td>{row.analysis.error ? <span className="error">Could not be read</span> : <span className="muted">{row.analysis.file}</span>}</td>
+                  <td className="num">{row.valuesRead} / {row.ocrResults.length}</td>
+                  <td>{row.manualCount ? <span className="badge check">{row.manualCount}</span> : <span className="muted">0</span>}</td>
+                  <td>{row.failCount ? <span className="badge fail">{row.failCount}</span> : <span className="muted">0</span>}</td>
+                  <td><StatusBadge value={row.decision} /></td>
+                </tr>
+              ))}
+              {!rows.length && (
+                <tr><td colSpan="6"><div className="empty"><b>No lab reports analysed yet.</b>The Lab Analyst uploads a lab report scan on a sample and runs analysis.</div></td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-      <div className="card" style={{ overflowX: 'auto' }}>
-        <table>
-          <thead>
-            <tr>
-              <th>Sample</th>
-              <th>Lab Report File</th>
-              <th>Values Read</th>
-              <th>CHECK MANUALLY</th>
-              <th>FAIL</th>
-              <th>Decision</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => (
-              <tr
-                key={row.report.id}
-                className="click"
-                onClick={() => navigate(`/reports/${row.report.id}`)}
-              >
-                <td>{row.report.sample_code || '—'}</td>
-                <td>
-                  {row.analysis.error
-                    ? <span className="error">{row.analysis.error}</span>
-                    : row.analysis.file || 'Not available'}
-                </td>
-                <td>{row.valuesRead}</td>
-                <td><span className="badge check">{row.manualCount}</span></td>
-                <td><span className="badge fail">{row.failCount}</span></td>
-                <td>
-                  <span className={`badge ${decisionClass(row.decision)}`}>
-                    {row.decision}
-                  </span>
-                </td>
-              </tr>
-            ))}
-
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan="6" className="muted">
-                  No laboratory reports available yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {pickedRow && <ReportDetail row={pickedRow} />}
     </>
   )
 }
